@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# QA Boilerplate Generator
 
-## Getting Started
+Browser-based wizard to scaffold test automation projects (WebdriverIO, Playwright, Cypress). See [`docs/qa-boilerplate-generator-phase1.md`](docs/qa-boilerplate-generator-phase1.md) for the Phase 1 specification.
 
-First, run the development server:
+## Prerequisites
+
+- Node.js 20+ (recommended)
+
+## Install
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Command                | Description                                                            |
+| ---------------------- | ---------------------------------------------------------------------- |
+| `npm run dev`          | Start the dev server at [http://localhost:3000](http://localhost:3000) |
+| `npm run build`        | Production build                                                       |
+| `npm run start`        | Run the production server                                              |
+| `npm run lint`         | ESLint                                                                 |
+| `npm run typecheck`    | TypeScript (`tsc --noEmit`)                                            |
+| `npm run format`       | Format with Prettier                                                   |
+| `npm run format:check` | Check formatting                                                       |
+| `npm test`             | Unit tests (Vitest)                                                    |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deploy (Vercel)
 
-## Learn More
+1. Push this repository to GitHub (or GitLab / Bitbucket).
+2. Import the repo in [Vercel](https://vercel.com/new) and use the default Next.js settings.
+3. No environment variables are required for Phase 1.
 
-To learn more about Next.js, take a look at the following resources:
+Preview deployments are created automatically for pull requests when the Git integration is enabled.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project layout
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Application code lives under `src/`:
 
-## Deploy on Vercel
+- `src/app` — Next.js App Router
+- `src/components` — UI (sidebar, preview, shared primitives)
+- `src/generator` — Pure generation logic (no React)
+- `src/context` — Config state
+- `src/types` — Shared TypeScript types
+- `src/lib` — Utilities (e.g. ZIP builder in later phases)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Ticket breakdown: [`docs/phase1/README.md`](docs/phase1/README.md).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+UI/design spec (colors, type, components): [`docs/design/qa-boilerplate-generator-design-spec.md`](docs/design/qa-boilerplate-generator-design-spec.md).

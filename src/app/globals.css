@@ -1,26 +1,126 @@
 @import "tailwindcss";
+@import "highlight.js/styles/github-dark.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --accent: #0ea5e9;
+  --accent-hover: #0284c7;
+  --accent-light: #e0f2fe;
+  --code-bg: #1e293b;
+  --code-text: #e2e8f0;
+  --content-bg: #ffffff;
+  --content-bg-secondary: #f8fafc;
+  --content-bg-tertiary: #f1f5f9;
+  --content-border: #e2e8f0;
+  --error: #ef4444;
+  --header-accent: #0ea5e9;
+  --header-bg: #0f172a;
+  --segment-active-bg: #ffffff;
+  --segment-bg: #f1f5f9;
+  --sidebar-bg: #1e293b;
+  --sidebar-bg-active: #0f172a;
+  --sidebar-bg-hover: #334155;
+  --sidebar-border: #334155;
+  --sidebar-text: #f8fafc;
+  --sidebar-text-muted: #94a3b8;
+  --success: #10b981;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-tertiary: #94a3b8;
+  --toggle-bg-off: #cbd5e1;
+  --toggle-bg-on: #0ea5e9;
+  --tree-icon-file: #64748b;
+  --tree-icon-folder: #0ea5e9;
+  --warning: #f59e0b;
+
+  /* Keyboard focus — ring color works on dark (header/sidebar) and light (content/segments) */
+  --focus-ring: #38bdf8;
+
+  /* Scrollbars — sidebar (dark) */
+  --scrollbar-sidebar-track: rgba(15, 23, 42, 0.55);
+  --scrollbar-sidebar-thumb: rgba(100, 116, 139, 0.55);
+  --scrollbar-sidebar-thumb-hover: rgba(14, 165, 233, 0.55);
+  /* Scrollbars — light panels (file tree, code) */
+  --scrollbar-content-track: rgba(241, 245, 249, 0.85);
+  --scrollbar-content-thumb: rgba(148, 163, 184, 0.55);
+  --scrollbar-content-thumb-hover: rgba(100, 116, 139, 0.55);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-jetbrains-mono), ui-monospace, monospace;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--content-bg);
+  color: var(--text-primary);
+}
+
+/* Sidebar <select>: hide native arrow and draw chevron inset from the right */
+.select-sidebar {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--sidebar-bg-hover);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f8fafc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem 1rem;
+  padding-inline-end: 2.5rem;
+}
+
+.select-sidebar::-ms-expand {
+  display: none;
+}
+
+/* Firefox */
+.scrollbar-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-sidebar-thumb) var(--scrollbar-sidebar-track);
+}
+
+.scrollbar-content {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-content-thumb) var(--scrollbar-content-track);
+}
+
+/* Chromium / Safari */
+.scrollbar-sidebar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-sidebar::-webkit-scrollbar-track {
+  background: var(--scrollbar-sidebar-track);
+  border-radius: 9999px;
+}
+
+.scrollbar-sidebar::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-sidebar-thumb);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.scrollbar-sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-sidebar-thumb-hover);
+}
+
+.scrollbar-content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-content::-webkit-scrollbar-track {
+  background: var(--scrollbar-content-track);
+  border-radius: 9999px;
+}
+
+.scrollbar-content::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-content-thumb);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.scrollbar-content::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-content-thumb-hover);
 }

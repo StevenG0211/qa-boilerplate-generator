@@ -39,3 +39,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# design
+design/
+
+# local / dev-only documentation (see README at repo root)
+docs/
+
+# cursor
+.cursor/
+.cursor/rules/*
