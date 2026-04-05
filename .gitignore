@@ -46,6 +46,5 @@ design/
 # local / dev-only documentation (see README at repo root)
 docs/
 
-# cursor
+# cursor (local IDE rules — do not commit)
 .cursor/
-.cursor/rules/*
