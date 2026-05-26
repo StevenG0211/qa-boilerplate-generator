@@ -15,6 +15,7 @@
     "linting": { "eslint": true, "prettier": true },
     "env": { "dotenv": true },
     "validation": { "zod": true },
-    "apiTesting": { "tool": "playwright-built-in" }
+    "apiTesting": { "tool": "playwright-built-in" },
+    "integrations": { "testlio": false, "mailinator": false }
   }
 }

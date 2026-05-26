@@ -41,6 +41,13 @@ const apiTestingSchema = z
   })
   .strict()
 
+const integrationsSchema = z
+  .object({
+    testlio: z.boolean(),
+    mailinator: z.boolean(),
+  })
+  .strict()
+
 export const configSchema = z
   .object({
     projectName: z.string().min(1),
@@ -53,6 +60,7 @@ export const configSchema = z
     env: envSchema,
     validation: validationSchema,
     apiTesting: apiTestingSchema,
+    integrations: integrationsSchema,
   })
   .strict()
   .superRefine((config, ctx) => {
@@ -73,6 +81,14 @@ export const configSchema = z
         path: ["apiTesting", "tool"],
         message:
           "Playwright built-in API testing is only supported for Playwright presets.",
+      })
+    }
+
+    if (config.integrations.testlio && !config.reporting.allure) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["integrations", "testlio"],
+        message: "Testlio integration requires Allure reporting to be enabled.",
       })
     }
   })

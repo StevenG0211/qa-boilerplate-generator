@@ -48,7 +48,8 @@
         "linting",
         "env",
         "validation",
-        "apiTesting"
+        "apiTesting",
+        "integrations"
       ],
       "properties": {
         "projectName": { "type": "string", "minLength": 1 },
@@ -106,6 +107,15 @@
             "tool": {
               "enum": ["supertest", "axios", "playwright-built-in", "none"]
             }
+          }
+        },
+        "integrations": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["testlio", "mailinator"],
+          "properties": {
+            "testlio": { "type": "boolean" },
+            "mailinator": { "type": "boolean" }
           }
         }
       }

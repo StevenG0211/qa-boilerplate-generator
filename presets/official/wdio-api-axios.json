@@ -15,6 +15,7 @@
     "linting": { "eslint": true, "prettier": true },
     "env": { "dotenv": true },
     "validation": { "zod": false },
-    "apiTesting": { "tool": "axios" }
+    "apiTesting": { "tool": "axios" },
+    "integrations": { "testlio": false, "mailinator": false }
   }
 }

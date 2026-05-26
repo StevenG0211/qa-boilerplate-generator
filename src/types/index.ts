@@ -5,6 +5,7 @@ export type {
   CIProvider,
   Config,
   EnvConfig,
+  IntegrationsConfig,
   Framework,
   Language,
   LintingConfig,

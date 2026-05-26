@@ -3,6 +3,7 @@ import type {
   CIConfig,
   Config,
   EnvConfig,
+  IntegrationsConfig,
   Framework,
   Language,
   LintingConfig,
@@ -32,6 +33,7 @@ export type ConfigAction =
   | { type: "SET_ENV"; payload: EnvConfig }
   | { type: "SET_VALIDATION"; payload: ValidationConfig }
   | { type: "SET_API_TESTING"; payload: APITestingConfig }
+  | { type: "SET_INTEGRATIONS"; payload: IntegrationsConfig }
   | { type: "APPLY_PRESET"; payload: { preset: Preset; fileName?: string } }
   | { type: "CLEAR_PRESET" }
   | { type: "REPLACE_CONFIG"; payload: Config }
@@ -54,14 +56,24 @@ export function configReducer(state: Config, action: ConfigAction): Config {
       ) {
         apiTesting = { tool: "none" }
       }
-      return { ...state, framework, reporting, apiTesting }
+      let integrations = state.integrations
+      if (!reporting.allure && integrations.testlio) {
+        integrations = { ...integrations, testlio: false }
+      }
+      return { ...state, framework, reporting, apiTesting, integrations }
     }
     case "SET_LANGUAGE":
       return { ...state, language: action.payload }
     case "SET_PATTERN":
       return { ...state, pattern: action.payload }
-    case "SET_REPORTING":
-      return { ...state, reporting: action.payload }
+    case "SET_REPORTING": {
+      const reporting = action.payload
+      let integrations = state.integrations
+      if (!reporting.allure && integrations.testlio) {
+        integrations = { ...integrations, testlio: false }
+      }
+      return { ...state, reporting, integrations }
+    }
     case "SET_CI":
       return { ...state, ci: action.payload }
     case "SET_LINTING":
@@ -72,6 +84,8 @@ export function configReducer(state: Config, action: ConfigAction): Config {
       return { ...state, validation: action.payload }
     case "SET_API_TESTING":
       return { ...state, apiTesting: action.payload }
+    case "SET_INTEGRATIONS":
+      return { ...state, integrations: action.payload }
     case "APPLY_PRESET":
       return structuredClone(action.payload.preset.config)
     case "REPLACE_CONFIG":

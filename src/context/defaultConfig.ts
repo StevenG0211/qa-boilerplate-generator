@@ -11,4 +11,5 @@ export const defaultConfig: Config = {
   env: { dotenv: true },
   validation: { zod: false },
   apiTesting: { tool: "none" },
+  integrations: { testlio: false, mailinator: false },
 }

@@ -35,6 +35,11 @@ export type APITestingConfig = {
   tool: APITool
 }
 
+export type IntegrationsConfig = {
+  testlio: boolean
+  mailinator: boolean
+}
+
 export type Config = {
   projectName: string
   framework: Framework
@@ -46,4 +51,5 @@ export type Config = {
   env: EnvConfig
   validation: ValidationConfig
   apiTesting: APITestingConfig
+  integrations: IntegrationsConfig
 }
