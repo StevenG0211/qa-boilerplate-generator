@@ -30,6 +30,19 @@ function collectPaths(nodes: FileNode[], prefix = ""): string[] {
   return out
 }
 
+function findFile(
+  nodes: FileNode[],
+  path: string,
+): Extract<FileNode, { kind: "file" }> | null {
+  const [head, ...rest] = path.split("/")
+  const node = nodes.find((n) => n.name === head)
+
+  if (!node) return null
+  if (rest.length === 0) return node.kind === "file" ? node : null
+  if (node.kind === "folder") return findFile(node.children, rest.join("/"))
+  return null
+}
+
 describe("generateProject", () => {
   it("returns project name and a root package.json file", () => {
     const project = generateProject(sampleConfig)
@@ -38,7 +51,11 @@ describe("generateProject", () => {
     const pkg = project.tree.find(
       (n) => n.kind === "file" && n.name === "package.json",
     )
+    const readme = project.tree.find(
+      (n) => n.kind === "file" && n.name === "README.md",
+    )
     expect(pkg?.kind).toBe("file")
+    expect(readme?.kind).toBe("file")
     if (pkg?.kind === "file") {
       expect(JSON.parse(pkg.content).name).toBe("demo-app")
     }
@@ -73,6 +90,8 @@ describe("generateProject", () => {
     expect(wdioFile.content).toContain("test/specs/**/*.ts")
     expect(wdioFile.content).toContain("html-nice")
     expect(wdioFile.content).toContain("./reports/html-reports")
+    expect(wdioFile.content).not.toContain("autoCompileOpts")
+    expect(wdioFile.content).not.toContain("tsNodeOpts")
   })
 
   it("includes Cypress config and e2e spec", () => {
@@ -81,6 +100,41 @@ describe("generateProject", () => {
     expect(paths).toContain("cypress.config.ts")
     expect(paths).toContain("cypress/e2e/smoke.cy.ts")
     expect(paths).toContain("cypress/pages/LoginPage.ts")
+  })
+
+  it("wires Cypress Allure and HTML reporters through config and support files", () => {
+    const cfg: Config = {
+      ...sampleConfig,
+      framework: "cypress",
+      reporting: { allure: true, html: true, dot: false },
+    }
+    const project = generateProject(cfg)
+    const configFile = findFile(project.tree, "cypress.config.ts")
+    const supportFile = findFile(project.tree, "cypress/support/e2e.ts")
+
+    expect(configFile?.content).toContain("allure-cypress/reporter")
+    expect(configFile?.content).toContain("allureCypress(on, config")
+    expect(configFile?.content).toContain("cypressOnFix(on)")
+    expect(configFile?.content).toContain("mochawesome(on)")
+    expect(configFile?.content).not.toContain("@shelex/cypress-allure-plugin")
+    expect(supportFile?.content).toContain("import 'allure-cypress'")
+    expect(supportFile?.content).toContain(
+      "import 'cypress-mochawesome-reporter/register'",
+    )
+  })
+
+  it("generates framework-specific setup notes", () => {
+    const playwrightReadme = findFile(
+      generateProject(sampleConfig).tree,
+      "README.md",
+    )
+    const wdioReadme = findFile(
+      generateProject({ ...sampleConfig, framework: "wdio" }).tree,
+      "README.md",
+    )
+
+    expect(playwrightReadme?.content).toContain("npx playwright install")
+    expect(wdioReadme?.content).toContain("WDIO v9 uses `tsx`")
   })
 
   it("merges src from Zod and Screenplay for Playwright", () => {

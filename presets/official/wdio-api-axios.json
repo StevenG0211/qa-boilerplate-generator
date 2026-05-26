@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "wdio-api-axios",
+  "name": "WDIO API Axios",
+  "description": "WebdriverIO v9 TypeScript starter focused on Axios API helper scaffolding.",
+  "source": "official",
+  "tags": ["wdio", "typescript", "api", "axios"],
+  "config": {
+    "projectName": "wdio-api-axios",
+    "framework": "wdio",
+    "language": "ts",
+    "pattern": "none",
+    "reporting": { "allure": false, "html": false, "dot": true },
+    "ci": { "provider": "none" },
+    "linting": { "eslint": true, "prettier": true },
+    "env": { "dotenv": true },
+    "validation": { "zod": false },
+    "apiTesting": { "tool": "axios" }
+  }
+}

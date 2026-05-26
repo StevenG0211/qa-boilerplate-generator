@@ -17,18 +17,26 @@ export function generateWdioNodes(config: Config): FileNode[] {
   const srcChildren: FileNode[] = []
 
   if (config.pattern === "pom") {
-    srcChildren.push(folder("pages", [file(`LoginPage.${ext}`, wdioLoginPage(config), lang)]))
+    srcChildren.push(
+      folder("pages", [file(`LoginPage.${ext}`, wdioLoginPage(config), lang)]),
+    )
   }
 
   if (config.pattern === "screenplay") {
-    srcChildren.push(folder("actors", []), folder("tasks", []), folder("questions", []))
+    srcChildren.push(
+      folder("actors", []),
+      folder("tasks", []),
+      folder("questions", []),
+    )
   }
 
   if (
     config.apiTesting.tool === "supertest" ||
     config.apiTesting.tool === "axios"
   ) {
-    srcChildren.push(folder("api", [file(`apiClient.${ext}`, wdioApiStub(config), lang)]))
+    srcChildren.push(
+      folder("api", [file(`apiClient.${ext}`, wdioApiStub(config), lang)]),
+    )
   }
 
   if (srcChildren.length > 0) {
@@ -67,14 +75,10 @@ function wdioConf(config: Config): string {
   }
 
   const reportersBlock = reporters.join(",\n    ")
-  const specsGlob = ext === "ts" ? "'./test/specs/**/*.ts'" : "'./test/specs/**/*.js'"
+  const specsGlob =
+    ext === "ts" ? "'./test/specs/**/*.ts'" : "'./test/specs/**/*.js'"
 
-  const autoCompile =
-    ext === "ts"
-      ? `,\n  autoCompileOpts: {\n    autoCompile: true,\n    tsNodeOpts: {\n      transpileOnly: true,\n      project: './tsconfig.json',\n    },\n  }`
-      : ""
-
-  const inner = `{\n  runner: 'local'${autoCompile},\n  // All .ts/.js files under test/specs (WDIO does not require *.spec.ts)\n  specs: [${specsGlob}],\n  maxInstances: 1,\n  capabilities: [\n    {\n      browserName: 'chrome',\n      'goog:chromeOptions': {\n        args: ['--headless=new', '--no-sandbox', '--disable-dev-shm-usage'],\n      },\n    },\n  ],\n  logLevel: 'info',\n  framework: 'mocha',\n  reporters: [\n    ${reportersBlock}\n  ],\n  mochaOpts: {\n    ui: 'bdd',\n    timeout: 60000,\n  },\n}`
+  const inner = `{\n  runner: 'local',\n  // All .ts/.js files under test/specs (WDIO does not require *.spec.ts)\n  specs: [${specsGlob}],\n  maxInstances: 1,\n  capabilities: [\n    {\n      browserName: 'chrome',\n      'goog:chromeOptions': {\n        args: ['--headless=new', '--no-sandbox', '--disable-dev-shm-usage'],\n      },\n    },\n  ],\n  logLevel: 'info',\n  framework: 'mocha',\n  reporters: [\n    ${reportersBlock}\n  ],\n  mochaOpts: {\n    ui: 'bdd',\n    timeout: 60000,\n  },\n}`
 
   if (ext === "ts") {
     return `export const config = ${inner}\n\nexport default config\n`
@@ -92,7 +96,7 @@ function wdioTsconfig(): string {
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "types": ["node", "@wdio/globals/types", "mocha"]
+    "types": ["node", "@wdio/globals/types", "@wdio/mocha-framework"]
   },
   "include": ["wdio.conf.ts", "src/**/*.ts", "test/**/*.ts"]
 }
@@ -244,5 +248,5 @@ module.exports = { api }
 `
   }
 
-  return ''
+  return ""
 }

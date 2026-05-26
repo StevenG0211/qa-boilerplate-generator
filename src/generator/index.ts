@@ -4,6 +4,7 @@ import { generateFrameworkNodes } from "./frameworks"
 import { mergeFileNodes } from "./mergeTree"
 import { file } from "./nodes"
 import { generatePackageJson } from "./packageJson"
+import { generateReadme } from "./readme"
 
 export { file, folder } from "./nodes"
 export { generatePackageJson } from "./packageJson"
@@ -11,6 +12,7 @@ export { generatePackageJson } from "./packageJson"
 export function generateProject(config: Config): GeneratedProject {
   const raw: FileNode[] = [
     file("package.json", generatePackageJson(config), "json"),
+    file("README.md", generateReadme(config), "markdown"),
     ...generateSharedBlockNodes(config),
     ...generateFrameworkNodes(config),
   ]

@@ -1,11 +1,18 @@
 "use client"
 
+import { useState, type ChangeEvent } from "react"
 import type { APITool, CIProvider, Framework, Language, Pattern } from "@/types"
 import { useConfig } from "@/context/ConfigContext"
 import { AccordionSection } from "@/components/ui/AccordionSection"
 import { SegmentedControl } from "@/components/ui/SegmentedControl"
 import { Toggle } from "@/components/ui/Toggle"
 import { cn } from "@/lib/cn"
+import {
+  officialPresets,
+  parsePresetJson,
+  type Preset,
+  type PresetValidationError,
+} from "@/presets"
 
 function frameworkLabel(f: Framework): string {
   switch (f) {
@@ -55,6 +62,169 @@ function apiLabel(t: APITool): string {
     case "playwright-built-in":
       return "PW API"
   }
+}
+
+function presetSummary(preset: Preset): string {
+  return [
+    frameworkLabel(preset.config.framework),
+    languageLabel(preset.config.language),
+    patternLabel(preset.config.pattern),
+    apiLabel(preset.config.apiTesting.tool),
+  ].join(" / ")
+}
+
+type PresetPanelProps = {
+  onNavigate?: () => void
+}
+
+function PresetPanel({ onNavigate }: PresetPanelProps) {
+  const { activePreset, dispatch } = useConfig()
+  const [uploadedPreset, setUploadedPreset] = useState<Preset | null>(null)
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null)
+  const [importErrors, setImportErrors] = useState<PresetValidationError[]>([])
+  const [importMessage, setImportMessage] = useState("")
+
+  const activeOfficialId =
+    activePreset?.source === "official" ? activePreset.id : ""
+
+  const applyPreset = (preset: Preset, fileName?: string) => {
+    dispatch({ type: "APPLY_PRESET", payload: { preset, fileName } })
+    setImportMessage(`${preset.name} applied.`)
+    onNavigate?.()
+  }
+
+  const handleUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ""
+
+    if (!file) return
+
+    try {
+      const result = parsePresetJson(await file.text())
+      if (result.success) {
+        setUploadedPreset(result.preset)
+        setUploadedFileName(file.name)
+        setImportErrors([])
+        setImportMessage(`${result.preset.name} is ready to apply.`)
+        return
+      }
+
+      setUploadedPreset(null)
+      setUploadedFileName(null)
+      setImportErrors(result.errors)
+      setImportMessage("Preset import failed.")
+    } catch {
+      setUploadedPreset(null)
+      setUploadedFileName(null)
+      setImportErrors([
+        { path: "file", message: "Could not read the selected file." },
+      ])
+      setImportMessage("Preset import failed.")
+    }
+  }
+
+  return (
+    <section className="flex flex-col gap-3 px-4 pb-4 pt-2">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="font-mono text-[10px] font-semibold tracking-wider text-[var(--sidebar-text-muted)]">
+          PRESETS
+        </h2>
+        {activePreset ? (
+          <button
+            type="button"
+            onClick={() => dispatch({ type: "CLEAR_PRESET" })}
+            className="min-h-8 rounded-md px-2 font-mono text-[10px] text-[var(--sidebar-text-muted)] outline-none ring-[var(--focus-ring)] hover:bg-[var(--sidebar-bg-hover)] focus:ring-2"
+          >
+            Clear
+          </button>
+        ) : null}
+      </div>
+
+      <label className="sr-only" htmlFor="official-preset-select">
+        Official preset
+      </label>
+      <select
+        id="official-preset-select"
+        value={activeOfficialId}
+        onChange={(event) => {
+          const preset = officialPresets.find(
+            (p) => p.id === event.target.value,
+          )
+          if (preset) applyPreset(preset)
+        }}
+        className="select-sidebar min-h-11 w-full rounded-md border border-[var(--sidebar-border)] pl-3 font-mono text-xs text-[var(--sidebar-text)] outline-none ring-[var(--focus-ring)] focus:ring-2"
+      >
+        <option value="">Choose official preset</option>
+        {officialPresets.map((preset) => (
+          <option key={preset.id} value={preset.id}>
+            {preset.name}
+          </option>
+        ))}
+      </select>
+
+      {activePreset ? (
+        <p className="rounded-md border border-[var(--sidebar-border)] bg-[var(--sidebar-bg-hover)] px-3 py-2 font-mono text-[11px] text-[var(--sidebar-text-muted)]">
+          Active: {activePreset.name}
+          {activePreset.customized ? " (customized)" : ""}
+          {activePreset.fileName ? ` from ${activePreset.fileName}` : ""}
+        </p>
+      ) : null}
+
+      <div className="flex flex-col gap-2">
+        <label
+          htmlFor="preset-upload"
+          className="font-mono text-[10px] font-semibold tracking-wider text-[var(--sidebar-text-muted)]"
+        >
+          IMPORT JSON PRESET
+        </label>
+        <input
+          id="preset-upload"
+          type="file"
+          accept="application/json,.json"
+          onChange={handleUpload}
+          className="min-h-11 w-full rounded-md border border-[var(--sidebar-border)] bg-[var(--sidebar-bg-hover)] px-3 py-2 font-mono text-[11px] text-[var(--sidebar-text)] outline-none ring-[var(--focus-ring)] file:mr-3 file:rounded file:border-0 file:bg-[var(--sidebar-border)] file:px-2 file:py-1 file:font-mono file:text-[10px] file:text-[var(--sidebar-text)] focus:ring-2"
+        />
+      </div>
+
+      {uploadedPreset ? (
+        <div className="rounded-md border border-[var(--sidebar-border)] bg-[var(--sidebar-bg-hover)] p-3">
+          <p className="font-mono text-xs font-semibold text-[var(--sidebar-text)]">
+            {uploadedPreset.name}
+          </p>
+          <p className="mt-1 font-mono text-[11px] text-[var(--sidebar-text-muted)]">
+            {presetSummary(uploadedPreset)}
+          </p>
+          <p className="mt-1 font-mono text-[11px] text-[var(--sidebar-text-muted)]">
+            {uploadedFileName}
+          </p>
+          <button
+            type="button"
+            onClick={() =>
+              applyPreset(uploadedPreset, uploadedFileName ?? undefined)
+            }
+            className="mt-3 min-h-10 w-full rounded-md bg-[var(--accent)] px-3 font-mono text-xs font-semibold text-white outline-none ring-[var(--focus-ring)] focus:ring-2"
+          >
+            Apply imported preset
+          </button>
+        </div>
+      ) : null}
+
+      <div aria-live="polite" className="font-mono text-[11px]">
+        {importMessage ? (
+          <p className="text-[var(--sidebar-text-muted)]">{importMessage}</p>
+        ) : null}
+        {importErrors.length > 0 ? (
+          <ul className="mt-2 flex flex-col gap-1 text-red-300">
+            {importErrors.map((error) => (
+              <li key={`${error.path}-${error.message}`}>
+                {error.path}: {error.message}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </div>
+    </section>
+  )
 }
 
 type ToggleRowProps = {
@@ -112,6 +282,10 @@ export function ConfigSidebar({ className, onNavigate }: ConfigSidebarProps) {
         className,
       )}
     >
+      <PresetPanel onNavigate={onNavigate} />
+
+      <div className="h-px w-full bg-[var(--sidebar-border)]" />
+
       <div className="flex flex-col gap-2 px-4 pb-4 pt-2">
         <label className="font-mono text-[10px] font-semibold tracking-wider text-[var(--sidebar-text-muted)]">
           PROJECT NAME

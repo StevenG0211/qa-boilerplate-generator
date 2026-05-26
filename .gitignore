@@ -43,8 +43,5 @@ next-env.d.ts
 # design
 design/
 
-# local / dev-only documentation (see README at repo root)
-docs/
-
 # cursor (local IDE rules — do not commit)
 .cursor/

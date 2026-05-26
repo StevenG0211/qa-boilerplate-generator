@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "playwright-ts-pom",
+  "name": "Playwright TypeScript POM",
+  "description": "Native Playwright UI tests with TypeScript, page objects, and built-in HTML reporting.",
+  "source": "official",
+  "tags": ["playwright", "typescript", "pom", "ui"],
+  "config": {
+    "projectName": "playwright-ts-pom",
+    "framework": "playwright",
+    "language": "ts",
+    "pattern": "pom",
+    "reporting": { "allure": false, "html": true, "dot": false },
+    "ci": { "provider": "none" },
+    "linting": { "eslint": true, "prettier": true },
+    "env": { "dotenv": true },
+    "validation": { "zod": false },
+    "apiTesting": { "tool": "none" }
+  }
+}

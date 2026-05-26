@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "playwright-api-zod",
+  "name": "Playwright API Zod",
+  "description": "Playwright TypeScript API testing using the built-in request fixture and Zod validation helpers.",
+  "source": "official",
+  "tags": ["playwright", "typescript", "api", "zod"],
+  "config": {
+    "projectName": "playwright-api-zod",
+    "framework": "playwright",
+    "language": "ts",
+    "pattern": "none",
+    "reporting": { "allure": false, "html": true, "dot": false },
+    "ci": { "provider": "none" },
+    "linting": { "eslint": true, "prettier": true },
+    "env": { "dotenv": true },
+    "validation": { "zod": true },
+    "apiTesting": { "tool": "playwright-built-in" }
+  }
+}

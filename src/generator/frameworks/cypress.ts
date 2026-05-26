@@ -16,7 +16,11 @@ export function generateCypressNodes(config: Config): FileNode[] {
   ]
 
   if (config.pattern === "pom") {
-    cypressChildren.push(folder("pages", [file(`LoginPage.${ext}`, cypressLoginPage(config), lang)]))
+    cypressChildren.push(
+      folder("pages", [
+        file(`LoginPage.${ext}`, cypressLoginPage(config), lang),
+      ]),
+    )
   }
 
   if (config.pattern === "screenplay") {
@@ -27,8 +31,13 @@ export function generateCypressNodes(config: Config): FileNode[] {
     )
   }
 
-  if (config.apiTesting.tool === "supertest" || config.apiTesting.tool === "axios") {
-    cypressChildren.push(folder("api", [file(`apiClient.${ext}`, cypressApiStub(config), lang)]))
+  if (
+    config.apiTesting.tool === "supertest" ||
+    config.apiTesting.tool === "axios"
+  ) {
+    cypressChildren.push(
+      folder("api", [file(`apiClient.${ext}`, cypressApiStub(config), lang)]),
+    )
   }
 
   const nodes: FileNode[] = [
@@ -51,14 +60,22 @@ function cypressConfig(config: Config): string {
   if (ext === "ts") {
     const imports: string[] = ["import { defineConfig } from 'cypress'"]
     if (allure) {
-      imports.push("import allureWriter from '@shelex/cypress-allure-plugin/writer'")
+      imports.push("import { allureCypress } from 'allure-cypress/reporter'")
     }
     if (html) {
-      imports.push("import mochawesome from 'cypress-mochawesome-reporter/plugin'")
+      imports.push(
+        "import mochawesome from 'cypress-mochawesome-reporter/plugin'",
+      )
+    }
+    if (allure && html) {
+      imports.push("import cypressOnFix from 'cypress-on-fix'")
     }
 
     const events: string[] = []
-    if (allure) events.push("allureWriter(on, config)")
+    if (allure && html) events.push("on = cypressOnFix(on)")
+    if (allure) {
+      events.push("allureCypress(on, config, { resultsDir: 'allure-results' })")
+    }
     if (html) events.push("mochawesome(on)")
 
     const setup =
@@ -85,15 +102,23 @@ export default defineConfig({
   const requires: string[] = ["const { defineConfig } = require('cypress')"]
   if (allure) {
     requires.push(
-      "const allureWriter = require('@shelex/cypress-allure-plugin/writer')",
+      "const { allureCypress } = require('allure-cypress/reporter')",
     )
   }
   if (html) {
-    requires.push("const mochawesome = require('cypress-mochawesome-reporter/plugin')")
+    requires.push(
+      "const mochawesome = require('cypress-mochawesome-reporter/plugin')",
+    )
+  }
+  if (allure && html) {
+    requires.push("const cypressOnFix = require('cypress-on-fix')")
   }
 
   const events: string[] = []
-  if (allure) events.push("allureWriter(on, config)")
+  if (allure && html) events.push("on = cypressOnFix(on)")
+  if (allure) {
+    events.push("allureCypress(on, config, { resultsDir: 'allure-results' })")
+  }
   if (html) events.push("mochawesome(on)")
 
   const setup =
@@ -136,10 +161,15 @@ function cypressTsconfig(): string {
 
 function cypressSupportE2e(config: Config): string {
   const ext = fileExtension(config)
+  const imports = ["./commands"]
+  if (config.reporting.allure) imports.push("allure-cypress")
+  if (config.reporting.html)
+    imports.push("cypress-mochawesome-reporter/register")
+
   if (ext === "ts") {
-    return `import './commands'\n`
+    return `${imports.map((path) => `import '${path}'`).join("\n")}\n`
   }
-  return `require('./commands')\n`
+  return `${imports.map((path) => `require('${path}')`).join("\n")}\n`
 }
 
 function cypressCommands(config: Config): string {
@@ -265,5 +295,5 @@ module.exports = { api }
 `
   }
 
-  return ''
+  return ""
 }

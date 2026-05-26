@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "wdio-ts-pom-allure",
+  "name": "WDIO TypeScript POM Allure",
+  "description": "WebdriverIO v9 TypeScript UI tests with page objects, Allure, and dot reporting.",
+  "source": "official",
+  "tags": ["wdio", "typescript", "pom", "allure"],
+  "config": {
+    "projectName": "wdio-ts-pom-allure",
+    "framework": "wdio",
+    "language": "ts",
+    "pattern": "pom",
+    "reporting": { "allure": true, "html": false, "dot": true },
+    "ci": { "provider": "none" },
+    "linting": { "eslint": true, "prettier": true },
+    "env": { "dotenv": true },
+    "validation": { "zod": false },
+    "apiTesting": { "tool": "none" }
+  }
+}

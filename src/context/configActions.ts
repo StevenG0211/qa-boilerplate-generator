@@ -10,7 +10,16 @@ import type {
   ReportingConfig,
   ValidationConfig,
 } from "@/types"
+import type { Preset, PresetSource } from "@/presets"
 import { defaultConfig } from "./defaultConfig"
+
+export type ActivePreset = {
+  id: string
+  name: string
+  source: PresetSource
+  customized: boolean
+  fileName?: string
+}
 
 export type ConfigAction =
   | { type: "SET_PROJECT_NAME"; payload: string }
@@ -23,6 +32,9 @@ export type ConfigAction =
   | { type: "SET_ENV"; payload: EnvConfig }
   | { type: "SET_VALIDATION"; payload: ValidationConfig }
   | { type: "SET_API_TESTING"; payload: APITestingConfig }
+  | { type: "APPLY_PRESET"; payload: { preset: Preset; fileName?: string } }
+  | { type: "CLEAR_PRESET" }
+  | { type: "REPLACE_CONFIG"; payload: Config }
   | { type: "RESET" }
 
 export function configReducer(state: Config, action: ConfigAction): Config {
@@ -60,6 +72,12 @@ export function configReducer(state: Config, action: ConfigAction): Config {
       return { ...state, validation: action.payload }
     case "SET_API_TESTING":
       return { ...state, apiTesting: action.payload }
+    case "APPLY_PRESET":
+      return structuredClone(action.payload.preset.config)
+    case "REPLACE_CONFIG":
+      return structuredClone(action.payload)
+    case "CLEAR_PRESET":
+      return state
     case "RESET":
       return structuredClone(defaultConfig)
     default:

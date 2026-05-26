@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "cypress-js-minimal",
+  "name": "Cypress JavaScript Minimal",
+  "description": "Minimal Cypress JavaScript scaffold with no optional integrations enabled.",
+  "source": "official",
+  "tags": ["cypress", "javascript", "minimal"],
+  "config": {
+    "projectName": "cypress-js-minimal",
+    "framework": "cypress",
+    "language": "js",
+    "pattern": "none",
+    "reporting": { "allure": false, "html": false, "dot": false },
+    "ci": { "provider": "none" },
+    "linting": { "eslint": false, "prettier": false },
+    "env": { "dotenv": false },
+    "validation": { "zod": false },
+    "apiTesting": { "tool": "none" }
+  }
+}
