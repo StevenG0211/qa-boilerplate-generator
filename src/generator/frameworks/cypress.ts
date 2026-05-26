@@ -1,5 +1,6 @@
 import type { Config } from "@/types"
 import type { FileNode } from "@/types"
+import { shouldGenerateTestlioLib } from "../blocks/integrations/shared"
 import { file, folder } from "../nodes"
 import { fileExtension } from "../ext"
 
@@ -28,15 +29,6 @@ export function generateCypressNodes(config: Config): FileNode[] {
       folder("actors", []),
       folder("tasks", []),
       folder("questions", []),
-    )
-  }
-
-  if (
-    config.apiTesting.tool === "supertest" ||
-    config.apiTesting.tool === "axios"
-  ) {
-    cypressChildren.push(
-      folder("api", [file(`apiClient.${ext}`, cypressApiStub(config), lang)]),
     )
   }
 
@@ -165,6 +157,7 @@ function cypressSupportE2e(config: Config): string {
   if (config.reporting.allure) imports.push("allure-cypress")
   if (config.reporting.html)
     imports.push("cypress-mochawesome-reporter/register")
+  if (shouldGenerateTestlioLib(config)) imports.push("./allure-hooks")
 
   if (ext === "ts") {
     return `${imports.map((path) => `import '${path}'`).join("\n")}\n`
@@ -253,47 +246,3 @@ module.exports = { LoginPage }
 `
 }
 
-function cypressApiStub(config: Config): string {
-  const tool = config.apiTesting.tool
-  const ext = fileExtension(config)
-
-  if (tool === "supertest") {
-    if (ext === "ts") {
-      return `import request from 'supertest'
-
-export function createClient(baseUrl: string) {
-  return request(baseUrl)
-}
-`
-    }
-    return `const request = require('supertest')
-
-function createClient(baseUrl) {
-  return request(baseUrl)
-}
-
-module.exports = { createClient }
-`
-  }
-
-  if (tool === "axios") {
-    if (ext === "ts") {
-      return `import axios from 'axios'
-
-export const api = axios.create({
-  baseURL: process.env.API_BASE_URL ?? 'http://localhost:4000',
-})
-`
-    }
-    return `const axios = require('axios')
-
-const api = axios.create({
-  baseURL: process.env.API_BASE_URL ?? 'http://localhost:4000',
-})
-
-module.exports = { api }
-`
-  }
-
-  return ""
-}

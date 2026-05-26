@@ -1,5 +1,6 @@
 import type { Config } from "@/types"
 import type { FileNode } from "@/types"
+import { shouldGenerateTestlioLib } from "../blocks/integrations/shared"
 import { file, folder } from "../nodes"
 import { fileExtension } from "../ext"
 
@@ -27,15 +28,6 @@ export function generateWdioNodes(config: Config): FileNode[] {
       folder("actors", []),
       folder("tasks", []),
       folder("questions", []),
-    )
-  }
-
-  if (
-    config.apiTesting.tool === "supertest" ||
-    config.apiTesting.tool === "axios"
-  ) {
-    srcChildren.push(
-      folder("api", [file(`apiClient.${ext}`, wdioApiStub(config), lang)]),
     )
   }
 
@@ -157,9 +149,15 @@ module.exports = { LoginPage }
 
 function wdioSmokeSpec(config: Config): string {
   const ext = fileExtension(config)
+  const hooksPrefix =
+    ext === "ts"
+      ? `import { registerFailureHooks } from '../../lib/hooks';\n\nregisterFailureHooks();\n\n`
+      : `const { registerFailureHooks } = require('../../lib/hooks');\n\nregisterFailureHooks();\n\n`
+  const prefix = shouldGenerateTestlioLib(config) ? hooksPrefix : ""
+
   if (config.pattern === "pom") {
     if (ext === "ts") {
-      return `import { expect } from 'expect-webdriverio'
+      return `${prefix}import { expect } from 'expect-webdriverio'
 import { LoginPage } from '../../src/pages/LoginPage'
 
 describe('login page', () => {
@@ -171,7 +169,7 @@ describe('login page', () => {
 })
 `
     }
-    return `const { expect } = require('expect-webdriverio')
+    return `${prefix}const { expect } = require('expect-webdriverio')
 const { LoginPage } = require('../../src/pages/LoginPage')
 
 describe('login page', () => {
@@ -185,7 +183,7 @@ describe('login page', () => {
   }
 
   if (ext === "ts") {
-    return `import { expect } from 'expect-webdriverio'
+    return `${prefix}import { expect } from 'expect-webdriverio'
 
 describe('smoke', () => {
   it('loads example.com', async () => {
@@ -195,7 +193,7 @@ describe('smoke', () => {
 })
 `
   }
-  return `const { expect } = require('expect-webdriverio')
+  return `${prefix}const { expect } = require('expect-webdriverio')
 
 describe('smoke', () => {
   it('loads example.com', async () => {
@@ -206,47 +204,3 @@ describe('smoke', () => {
 `
 }
 
-function wdioApiStub(config: Config): string {
-  const tool = config.apiTesting.tool
-  const ext = fileExtension(config)
-
-  if (tool === "supertest") {
-    if (ext === "ts") {
-      return `import request from 'supertest'
-
-export function createClient(baseUrl: string) {
-  return request(baseUrl)
-}
-`
-    }
-    return `const request = require('supertest')
-
-function createClient(baseUrl) {
-  return request(baseUrl)
-}
-
-module.exports = { createClient }
-`
-  }
-
-  if (tool === "axios") {
-    if (ext === "ts") {
-      return `import axios from 'axios'
-
-export const api = axios.create({
-  baseURL: process.env.API_BASE_URL ?? 'http://localhost:4000',
-})
-`
-    }
-    return `const axios = require('axios')
-
-const api = axios.create({
-  baseURL: process.env.API_BASE_URL ?? 'http://localhost:4000',
-})
-
-module.exports = { api }
-`
-  }
-
-  return ""
-}

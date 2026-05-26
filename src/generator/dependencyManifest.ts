@@ -92,6 +92,7 @@ const reportingGroups: Record<Framework, Record<string, DependencyGroup>> = {
     allure: {
       packages: {
         "allure-playwright": "^3.0.0",
+        "allure-js-commons": "^3.3.3",
       },
     },
     html: {
@@ -195,6 +196,37 @@ const validationGroup: DependencyGroup = {
   },
 }
 
+const integrationGroups = {
+  mailinator: {
+    packages: {
+      "mailinator-client": "^1.0.6",
+    },
+    notes: [
+      "Set MAILINATOR_API_TOKEN and MAILINATOR_DOMAIN in .env before using the Mailinator helper.",
+    ],
+  },
+  testlio: {
+    packages: {
+      "@testlio/cli": "^2.2.10",
+    },
+    scripts: {
+      "allure:generate":
+        "allure generate ./allure-results --clean -o ./allure-report",
+      "allure:open": "allure open ./allure-report",
+    },
+    notes: [
+      "Update testlio-cli/project-config.json with your Testlio project identifiers.",
+      "Allure results are written to allure-results/ for Testlio platform upload.",
+    ],
+  },
+  testlioAllure: {
+    packages: {
+      "allure-commandline": "^2.34.1",
+      "allure-js-commons": "^3.3.3",
+    },
+  },
+} satisfies Record<string, DependencyGroup>
+
 export function resolveDependencyManifest(
   config: Config,
 ): ResolvedDependencyManifest {
@@ -258,6 +290,16 @@ function collectDependencyGroups(config: Config): DependencyGroup[] {
   if (config.linting.prettier) groups.push(prettierGroup)
   if (config.linting.eslint && config.linting.prettier) {
     groups.push(eslintPrettierGroup)
+  }
+
+  if (config.integrations.mailinator) {
+    groups.push(integrationGroups.mailinator)
+  }
+  if (config.integrations.testlio) {
+    groups.push(integrationGroups.testlio)
+    if (config.reporting.allure) {
+      groups.push(integrationGroups.testlioAllure)
+    }
   }
 
   return groups

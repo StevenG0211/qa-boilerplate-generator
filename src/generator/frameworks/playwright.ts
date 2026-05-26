@@ -1,5 +1,6 @@
 import type { Config } from "@/types"
 import type { FileNode } from "@/types"
+import { shouldGenerateTestlioLib } from "../blocks/integrations/shared"
 import { file, folder } from "../nodes"
 import { fileExtension } from "../ext"
 
@@ -24,12 +25,6 @@ export function generatePlaywrightNodes(config: Config): FileNode[] {
     )
   }
 
-  if (config.apiTesting.tool !== "none") {
-    testsChildren.push(
-      folder("api", [file(`apiClient.${ext}`, playwrightApiStub(config), lang)]),
-    )
-  }
-
   nodes.push(folder("tests", testsChildren))
 
   if (config.pattern === "screenplay") {
@@ -47,60 +42,108 @@ export function generatePlaywrightNodes(config: Config): FileNode[] {
 
 function playwrightConfig(config: Config): string {
   const ext = fileExtension(config)
+  const testlio = config.integrations.testlio
   const reporterParts: string[] = ["['list']"]
   if (config.reporting.allure) {
-    reporterParts.push("['allure-playwright']")
+    if (testlio) {
+      reporterParts.push(
+        "['allure-playwright', { detail: false, resultsDir: 'allure-results' }]",
+      )
+    } else {
+      reporterParts.push("['allure-playwright']")
+    }
   }
   if (config.reporting.html) {
     reporterParts.push("['html', { outputFolder: 'playwright-report' }]")
   }
   const reporterBlock = reporterParts.join(",\n    ")
 
+  const imports: string[] = ["import { defineConfig, devices } from '@playwright/test'"]
+  if (testlio && config.env.dotenv) {
+    imports.push("import dotenv from 'dotenv'")
+    imports.push("import path from 'path'")
+    imports.push("import { getPlaywrightBaseUrl } from './lib/test-target'")
+  }
+
+  const dotenvSetup =
+    testlio && config.env.dotenv
+      ? `\ndotenv.config({ path: path.resolve(__dirname, '.env') });\n`
+      : ""
+
+  const baseUrlExpr =
+    testlio && config.env.dotenv
+      ? "getPlaywrightBaseUrl()"
+      : "process.env.BASE_URL ?? 'http://localhost:3000'"
+
+  const traceSetting = testlio ? "'retain-on-failure'" : "'on-first-retry'"
+  const retries = testlio ? "0" : "process.env.CI ? 2 : 0"
+
+  const projectsBlock = testlio
+    ? `[
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+  ]`
+    : `[
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ]`
+
   if (ext === "ts") {
-    return `import { defineConfig, devices } from '@playwright/test';
+    return `${imports.join(";\n")};${dotenvSetup}
 
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: ${retries},
   reporter: [
     ${reporterBlock}
   ],
   use: {
-    trace: 'on-first-retry',
-    baseURL: process.env.BASE_URL ?? 'http://localhost:3000',
+    trace: ${traceSetting},
+    baseURL: ${baseUrlExpr},
   },
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-  ],
+  projects: ${projectsBlock},
 });
 `
   }
 
-  return `const { defineConfig, devices } = require('@playwright/test');
+  const jsDotenv =
+    testlio && config.env.dotenv
+      ? `\nrequire('dotenv').config({ path: require('path').resolve(__dirname, '.env') });\n`
+      : ""
+  const jsBaseUrl =
+    testlio && config.env.dotenv
+      ? "require('./lib/test-target').getPlaywrightBaseUrl()"
+      : "process.env.BASE_URL ?? 'http://localhost:3000'"
+
+  return `const { defineConfig, devices } = require('@playwright/test');${jsDotenv}
 
 module.exports = defineConfig({
   testDir: './tests',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: ${retries},
   reporter: [
     ${reporterBlock}
   ],
   use: {
-    trace: 'on-first-retry',
-    baseURL: process.env.BASE_URL ?? 'http://localhost:3000',
+    trace: ${traceSetting},
+    baseURL: ${jsBaseUrl},
   },
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-  ],
+  projects: ${projectsBlock},
 });
 `
 }
@@ -116,14 +159,34 @@ function playwrightTsconfig(): string {
     "skipLibCheck": true,
     "types": ["node", "@playwright/test"]
   },
-  "include": ["tests/**/*.ts", "playwright.config.ts", "src/**/*.ts"]
+  "include": ["tests/**/*.ts", "playwright.config.ts", "lib/**/*.ts", "src/**/*.ts"]
 }
 `
 }
 
 function playwrightSmokeSpec(config: Config): string {
   const ext = fileExtension(config)
+  const useLib = shouldGenerateTestlioLib(config)
+
   if (config.pattern === "pom") {
+    if (useLib) {
+      if (ext === "ts") {
+        return `import { test, expect } from '../lib/page-object-fixtures';
+
+test('login page structure', async ({ loginPage }) => {
+  await loginPage.goto();
+  await expect(loginPage.usernameInput).toBeVisible();
+});
+`
+      }
+      return `const { test, expect } = require('../lib/page-object-fixtures');
+
+test('login page structure', async ({ loginPage }) => {
+  await loginPage.goto();
+  await expect(loginPage.usernameInput).toBeVisible();
+});
+`
+    }
     if (ext === "ts") {
       return `import { test, expect } from '@playwright/test';
 import { LoginPage } from './pages/LoginPage';
@@ -142,6 +205,25 @@ test('login page structure', async ({ page }) => {
   const login = new LoginPage(page);
   await login.goto();
   await expect(login.usernameInput).toBeVisible();
+});
+`
+  }
+
+  if (useLib) {
+    if (ext === "ts") {
+      return `import { test, expect } from '../lib/helpers-fixtures';
+
+test('smoke', async ({ page }) => {
+  await page.goto('https://example.com');
+  await expect(page).toHaveTitle(/Example/);
+});
+`
+    }
+    return `const { test, expect } = require('../lib/helpers-fixtures');
+
+test('smoke', async ({ page }) => {
+  await page.goto('https://example.com');
+  await expect(page).toHaveTitle(/Example/);
 });
 `
   }
@@ -205,66 +287,3 @@ module.exports = { LoginPage };
 `
 }
 
-function playwrightApiStub(config: Config): string {
-  const tool = config.apiTesting.tool
-  const ext = fileExtension(config)
-
-  if (tool === "playwright-built-in") {
-    if (ext === "ts") {
-      return `import type { APIRequestContext } from '@playwright/test';
-
-export async function fetchJson(request: APIRequestContext, path: string) {
-  const res = await request.get(path);
-  return res.json();
-}
-`
-    }
-    return `async function fetchJson(request, path) {
-  const res = await request.get(path);
-  return res.json();
-}
-
-module.exports = { fetchJson };
-`
-  }
-
-  if (tool === "supertest") {
-    if (ext === "ts") {
-      return `import request from 'supertest';
-
-export function createClient(baseUrl: string) {
-  return request(baseUrl);
-}
-`
-    }
-    return `const request = require('supertest');
-
-function createClient(baseUrl) {
-  return request(baseUrl);
-}
-
-module.exports = { createClient };
-`
-  }
-
-  if (tool === "axios") {
-    if (ext === "ts") {
-      return `import axios from 'axios';
-
-export const api = axios.create({
-  baseURL: process.env.API_BASE_URL ?? 'http://localhost:4000',
-});
-`
-    }
-    return `const axios = require('axios');
-
-const api = axios.create({
-  baseURL: process.env.API_BASE_URL ?? 'http://localhost:4000',
-});
-
-module.exports = { api };
-`
-  }
-
-  return ''
-}
