@@ -277,33 +277,124 @@ describe("generateProject", () => {
     })
   })
 
-  describe("Testlio official presets", () => {
-    const testlioPresets = officialPresets.filter(
-      (preset) => preset.config.integrations.testlio,
+  describe("API template matrix (JavaScript)", () => {
+    const jsConfig = { ...sampleConfig, language: "js" as const }
+
+    const playwrightTools: APITool[] = [
+      "playwright-built-in",
+      "axios",
+      "supertest",
+    ]
+
+    it.each(playwrightTools)(
+      "Playwright JS generates tests/api module set for %s",
+      (tool) => {
+        const paths = collectPaths(
+          generateProject({ ...jsConfig, apiTesting: { tool } }).tree,
+        )
+        expect(paths).toContain("tests/api/client.js")
+        expect(paths).toContain("tests/api/usersApi.js")
+        expect(paths).toContain("tests/api/users.spec.js")
+      },
     )
 
-    it("includes all three Testlio official presets", () => {
-      expect(testlioPresets).toHaveLength(3)
+    it.each(["axios", "supertest"] as const)(
+      "WDIO JS generates src/api and example spec for %s",
+      (tool) => {
+        const cfg: Config = {
+          ...jsConfig,
+          framework: "wdio",
+          apiTesting: { tool },
+        }
+        const paths = collectPaths(generateProject(cfg).tree)
+        expect(paths).toContain("src/api/client.js")
+        expect(paths).toContain("src/api/usersApi.js")
+        expect(paths).toContain("test/specs/api/users.api.js")
+      },
+    )
+
+    it("Cypress JS generates cypress/api module set for axios", () => {
+      const cfg: Config = {
+        ...jsConfig,
+        framework: "cypress",
+        apiTesting: { tool: "axios" },
+      }
+      const paths = collectPaths(generateProject(cfg).tree)
+      expect(paths).toContain("cypress/api/client.js")
+      expect(paths).toContain("cypress/api/usersApi.js")
+      expect(paths).toContain("cypress/api/users.api.js")
     })
+  })
 
-    it.each(testlioPresets.map((preset) => [preset.id, preset.config] as const))(
-      "%s generates Testlio scaffold paths",
-      (_id, config) => {
+  describe("Official preset smoke trees", () => {
+    const presetSmokePaths: Record<string, string[]> = {
+      "playwright-ts-pom": [
+        "playwright.config.ts",
+        "tests/pages/LoginPage.ts",
+        "tests/smoke.spec.ts",
+      ],
+      "playwright-api-zod": [
+        "src/schemas/loginFixture.ts",
+        "tests/api/users.spec.ts",
+      ],
+      "playwright-testlio-ts-pom": [
+        "playwright.config.ts",
+        "playwright.service.config.ts",
+        "testlio-cli/project-config.json",
+        "lib/helpers-fixtures.ts",
+      ],
+      "wdio-ts-pom-allure": ["wdio.conf.ts", "src/pages/LoginPage.ts"],
+      "wdio-api-axios": [
+        "src/api/client.ts",
+        "test/specs/api/users.api.ts",
+      ],
+      "wdio-testlio-ts-pom": [
+        "wdio.conf.ts",
+        "testlio-cli/project-config.json",
+        "lib/hooks.ts",
+      ],
+      "cypress-ts-pom-html": [
+        "cypress.config.ts",
+        "cypress/pages/LoginPage.ts",
+      ],
+      "cypress-js-minimal": ["cypress.config.js", "cypress/e2e/smoke.cy.js"],
+      "cypress-testlio-ts-pom": [
+        "cypress.config.ts",
+        "cypress/support/allure-hooks.ts",
+        "testlio-cli/project-config.json",
+      ],
+    }
+
+    it.each(officialPresets.map((preset) => [preset.id, preset.config] as const))(
+      "%s generates expected scaffold paths",
+      (id, config) => {
         const paths = collectPaths(generateProject(config).tree)
-        expect(paths).toContain("testlio-cli/project-config.json")
-        expect(paths).toContain("lib/allure-helper.ts")
-
-        if (config.framework === "playwright") {
-          expect(paths).toContain("lib/helpers-fixtures.ts")
-          expect(paths).toContain("playwright.service.config.ts")
-        }
-        if (config.framework === "wdio") {
-          expect(paths).toContain("lib/hooks.ts")
-        }
-        if (config.framework === "cypress") {
-          expect(paths).toContain("cypress/support/allure-hooks.ts")
+        const expected = presetSmokePaths[id]
+        expect(expected).toBeDefined()
+        for (const sentinel of expected) {
+          expect(paths).toContain(sentinel)
         }
       },
     )
+
+    it("wdio-ts-pom-allure wires Allure reporter in wdio.conf.ts", () => {
+      const preset = officialPresets.find((p) => p.id === "wdio-ts-pom-allure")
+      expect(preset).toBeDefined()
+      const wdioFile = findFile(
+        generateProject(preset!.config).tree,
+        "wdio.conf.ts",
+      )
+      expect(wdioFile?.content).toContain("allure-results")
+    })
+
+    it("cypress-ts-pom-html wires Mochawesome reporter in cypress.config.ts", () => {
+      const preset = officialPresets.find((p) => p.id === "cypress-ts-pom-html")
+      expect(preset).toBeDefined()
+      const configFile = findFile(
+        generateProject(preset!.config).tree,
+        "cypress.config.ts",
+      )
+      expect(configFile?.content).toContain("mochawesome")
+    })
   })
 })
