@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "wdio-testlio-ts-pom",
+  "name": "WDIO Testlio TypeScript POM",
+  "description": "Testlio-ready WebdriverIO scaffold with POM, Allure reporting, and Mailinator helper.",
+  "source": "official",
+  "tags": ["wdio", "typescript", "pom", "testlio", "allure", "mailinator"],
+  "config": {
+    "projectName": "wdio-testlio-ts-pom",
+    "framework": "wdio",
+    "language": "ts",
+    "pattern": "pom",
+    "reporting": { "allure": true, "html": false, "dot": true },
+    "ci": { "provider": "github" },
+    "linting": { "eslint": true, "prettier": true },
+    "env": { "dotenv": true },
+    "validation": { "zod": false },
+    "apiTesting": { "tool": "none" },
+    "integrations": { "testlio": true, "mailinator": true }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "playwright-testlio-ts-pom",
+  "name": "Playwright Testlio TypeScript POM",
+  "description": "Testlio-ready Playwright scaffold with POM, Allure reporting, Mailinator helper, and lib fixtures.",
+  "source": "official",
+  "tags": ["playwright", "typescript", "pom", "testlio", "allure", "mailinator"],
+  "config": {
+    "projectName": "playwright-testlio-ts-pom",
+    "framework": "playwright",
+    "language": "ts",
+    "pattern": "pom",
+    "reporting": { "allure": true, "html": true, "dot": false },
+    "ci": { "provider": "github" },
+    "linting": { "eslint": true, "prettier": true },
+    "env": { "dotenv": true },
+    "validation": { "zod": false },
+    "apiTesting": { "tool": "none" },
+    "integrations": { "testlio": true, "mailinator": true }
+  }
+}

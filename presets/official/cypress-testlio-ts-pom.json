@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "cypress-testlio-ts-pom",
+  "name": "Cypress Testlio TypeScript POM",
+  "description": "Testlio-ready Cypress scaffold with POM, Allure and HTML reporting, and Mailinator helper.",
+  "source": "official",
+  "tags": ["cypress", "typescript", "pom", "testlio", "allure", "mailinator"],
+  "config": {
+    "projectName": "cypress-testlio-ts-pom",
+    "framework": "cypress",
+    "language": "ts",
+    "pattern": "pom",
+    "reporting": { "allure": true, "html": true, "dot": false },
+    "ci": { "provider": "github" },
+    "linting": { "eslint": true, "prettier": true },
+    "env": { "dotenv": true },
+    "validation": { "zod": false },
+    "apiTesting": { "tool": "none" },
+    "integrations": { "testlio": true, "mailinator": true }
+  }
+}
