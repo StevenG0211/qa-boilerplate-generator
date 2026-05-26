@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type ChangeEvent } from "react"
+import { useState, type ChangeEvent, type KeyboardEvent } from "react"
 import type { APITool, CIProvider, Framework, Language, Pattern } from "@/types"
 import { useConfig } from "@/context/ConfigContext"
 import { AccordionSection } from "@/components/ui/AccordionSection"
@@ -13,6 +13,8 @@ import {
   type Preset,
   type PresetValidationError,
 } from "@/presets"
+import { PresetCard } from "@/components/sidebar/PresetCard"
+import { PresetTagList } from "@/components/sidebar/PresetTag"
 
 function frameworkLabel(f: Framework): string {
   switch (f) {
@@ -87,6 +89,30 @@ function PresetPanel({ onNavigate }: PresetPanelProps) {
   const activeOfficialId =
     activePreset?.source === "official" ? activePreset.id : ""
 
+  const handlePresetKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    index: number,
+  ) => {
+    const lastIndex = officialPresets.length - 1
+    let nextIndex: number | null = null
+
+    if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+      nextIndex = index === lastIndex ? 0 : index + 1
+    } else if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+      nextIndex = index === 0 ? lastIndex : index - 1
+    } else if (event.key === "Home") {
+      nextIndex = 0
+    } else if (event.key === "End") {
+      nextIndex = lastIndex
+    }
+
+    if (nextIndex !== null) {
+      event.preventDefault()
+      const nextPreset = officialPresets[nextIndex]
+      if (nextPreset) applyPreset(nextPreset)
+    }
+  }
+
   const applyPreset = (preset: Preset, fileName?: string) => {
     dispatch({ type: "APPLY_PRESET", payload: { preset, fileName } })
     setImportMessage(`${preset.name} applied.`)
@@ -140,27 +166,22 @@ function PresetPanel({ onNavigate }: PresetPanelProps) {
         ) : null}
       </div>
 
-      <label className="sr-only" htmlFor="official-preset-select">
-        Official preset
-      </label>
-      <select
-        id="official-preset-select"
-        value={activeOfficialId}
-        onChange={(event) => {
-          const preset = officialPresets.find(
-            (p) => p.id === event.target.value,
-          )
-          if (preset) applyPreset(preset)
-        }}
-        className="select-sidebar min-h-11 w-full rounded-md border border-[var(--sidebar-border)] pl-3 font-mono text-xs text-[var(--sidebar-text)] outline-none ring-[var(--focus-ring)] focus:ring-2"
+      <div
+        role="radiogroup"
+        aria-label="Official presets"
+        className="flex max-h-72 flex-col gap-2 overflow-y-auto pr-1"
       >
-        <option value="">Choose official preset</option>
-        {officialPresets.map((preset) => (
-          <option key={preset.id} value={preset.id}>
-            {preset.name}
-          </option>
+        {officialPresets.map((preset, index) => (
+          <PresetCard
+            key={preset.id}
+            preset={preset}
+            selected={activeOfficialId === preset.id}
+            tabIndex={activeOfficialId === preset.id ? 0 : -1}
+            onSelect={() => applyPreset(preset)}
+            onKeyDown={(event) => handlePresetKeyDown(event, index)}
+          />
         ))}
-      </select>
+      </div>
 
       {activePreset ? (
         <p className="rounded-md border border-[var(--sidebar-border)] bg-[var(--sidebar-bg-hover)] px-3 py-2 font-mono text-[11px] text-[var(--sidebar-text-muted)]">
@@ -188,11 +209,19 @@ function PresetPanel({ onNavigate }: PresetPanelProps) {
 
       {uploadedPreset ? (
         <div className="rounded-md border border-[var(--sidebar-border)] bg-[var(--sidebar-bg-hover)] p-3">
-          <p className="font-mono text-xs font-semibold text-[var(--sidebar-text)]">
+          <p className="font-mono text-xs font-semibold leading-snug text-[var(--sidebar-text)]">
             {uploadedPreset.name}
           </p>
-          <p className="mt-1 font-mono text-[11px] text-[var(--sidebar-text-muted)]">
-            {presetSummary(uploadedPreset)}
+          <p className="mt-2 font-mono text-[11px] leading-relaxed text-[var(--sidebar-text-muted)]">
+            {uploadedPreset.description}
+          </p>
+          {uploadedPreset.tags.length > 0 ? (
+            <div className="mt-3 border-t border-[var(--sidebar-border)] pt-3">
+              <PresetTagList tags={uploadedPreset.tags} />
+            </div>
+          ) : null}
+          <p className="mt-3 font-mono text-[11px] text-[var(--sidebar-text-muted)]">
+            Source: {uploadedPreset.source} · {presetSummary(uploadedPreset)}
           </p>
           <p className="mt-1 font-mono text-[11px] text-[var(--sidebar-text-muted)]">
             {uploadedFileName}
@@ -496,6 +525,41 @@ export function ConfigSidebar({ className, onNavigate }: ConfigSidebarProps) {
             <option value="playwright-built-in">Playwright built-in</option>
           ) : null}
         </select>
+      </AccordionSection>
+
+      <AccordionSection
+        title="INTEGRATIONS"
+        badge={
+          (config.integrations.testlio ? 1 : 0) +
+          (config.integrations.mailinator ? 1 : 0)
+        }
+      >
+        <ToggleRow
+          label="Testlio"
+          checked={config.integrations.testlio}
+          disabled={!config.reporting.allure}
+          tooltip={
+            !config.reporting.allure
+              ? "Testlio integration requires Allure reporting"
+              : undefined
+          }
+          onChange={(v) =>
+            dispatch({
+              type: "SET_INTEGRATIONS",
+              payload: { ...config.integrations, testlio: v },
+            })
+          }
+        />
+        <ToggleRow
+          label="Mailinator"
+          checked={config.integrations.mailinator}
+          onChange={(v) =>
+            dispatch({
+              type: "SET_INTEGRATIONS",
+              payload: { ...config.integrations, mailinator: v },
+            })
+          }
+        />
       </AccordionSection>
     </aside>
   )
