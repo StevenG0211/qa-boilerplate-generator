@@ -6,7 +6,7 @@ Scope: Phase 2/3 closeout (API templates, Testlio integrations, presets, CI)
 
 ## Executive summary
 
-Phase 2/3 closeout items are largely complete. Critical generator wiring gaps and preset tag styling have been addressed. Remaining work is mostly test-matrix expansion for JS variants and medium-priority deferrals (P2-003 composition, dedicated preset validation script).
+Phase 2/3 closeout items are complete. Critical generator wiring, preset validation CLI, expanded test matrix (JS API paths, all nine official preset smokes), generated README notes for Cypress Testlio and Playwright service config, and component-level preset UI tests are in place. **Ready for Phase 4 kickoff (P4-001 extraction)** pending green CI. Remaining intentional debt: P2-003 framework composition refactor and optional full `ConfigSidebar` browser E2E for radiogroup keyboard navigation.
 
 ---
 
@@ -31,18 +31,16 @@ Verified in `src/generator/index.test.ts` under `integration helper wiring`.
 
 ## High-priority gaps
 
-### 3. Test coverage vs plan acceptance criteria — **PARTIALLY RESOLVED**
+### 3. Test coverage vs plan acceptance criteria — **RESOLVED**
 
 | Planned | Status |
 |---------|--------|
 | Playwright API × built-in, axios, supertest (TS) | Covered in `API template matrix` |
-| Playwright API × JS | Not yet covered |
-| WDIO API × axios, supertest (TS) | Covered |
-| Cypress API axios | Covered |
-| All 9 official presets tree assertions | Generic validate + generate; Testlio presets have dedicated paths test |
-| Testlio presets per framework | Covered in `Testlio official presets` |
-
-**Remaining:** Add JS language variants to API matrix if JS API output becomes common.
+| Playwright API × JS | Covered in `API template matrix (JavaScript)` |
+| WDIO API × axios, supertest (TS + JS) | Covered |
+| Cypress API axios (TS + JS) | Covered |
+| All 9 official presets tree assertions | Covered in `Official preset smoke trees` |
+| Testlio presets per framework | Covered via preset smoke map (Playwright, WDIO, Cypress Testlio presets) |
 
 ### 4. Duplicate tag sources (UI) — **RESOLVED**
 
@@ -56,27 +54,27 @@ Added to Playwright Allure reporting group in `dependencyManifest.ts` (not only 
 
 ---
 
-## Medium-priority gaps (open)
+## Medium-priority gaps
 
 ### 6. P2-003 template composition deferred
 
 Framework files remain monolithic aside from `blocks/api` and `blocks/integrations`.
 
-### 7. Cypress Testlio path incomplete
+### 7. Cypress Testlio path incomplete — **RESOLVED**
 
-Cypress uses `allure-hooks` in support file but lacks Playwright-style `helpers-fixtures` layer. Intentionally lighter; document in generated README if users ask for parity.
+Cypress uses `allure-hooks` in support file but lacks Playwright-style `helpers-fixtures` layer. Generated README documents the parity gap when Testlio + Cypress is enabled (`src/generator/readme.ts`).
 
-### 8. No dedicated preset validation script
+### 8. No dedicated preset validation script — **RESOLVED**
 
-CI relies on `validatePreset.test.ts`. Optional `scripts/validate-presets.ts` not added.
+`scripts/validate-presets.ts` validates all JSON under `presets/official/` and `presets/community/`. CI runs `npm run validate:presets`.
 
-### 9. P3-007 regression incomplete
+### 9. P3-007 regression incomplete — **PARTIALLY RESOLVED**
 
-No browser E2E or component tests for preset card keyboard selection.
+Component tests cover `PresetCard` radio/keyboard activation, `PresetTag` accent styling, and `ConfigProvider` `APPLY_PRESET` + active preset metadata (`*.test.tsx` with Vitest jsdom). Full `ConfigSidebar` radiogroup Arrow/Home/End navigation and browser E2E remain optional follow-up.
 
-### 10. `playwright.service.config.ts` is a stub
+### 10. `playwright.service.config.ts` is a stub — **RESOLVED**
 
-Generated but not referenced by npm scripts. Acceptable placeholder.
+Generated stub unchanged. Generated README documents manual enablement (`PLAYWRIGHT_SERVICE_*`, `npx playwright test -c playwright.service.config.ts`) when Playwright + Testlio is enabled.
 
 ---
 
@@ -88,6 +86,7 @@ Generated but not referenced by npm scripts. Acceptable placeholder.
 | `mergeFileNodes` collision risk | Low today |
 | Community presets folder | `.gitkeep` only |
 | Reference zip in repo root | Gitignored |
+| ConfigSidebar radiogroup E2E | Deferred; component tests satisfy minimum P3-007 |
 
 ---
 
@@ -106,8 +105,9 @@ Generated but not referenced by npm scripts. Acceptable placeholder.
 1. ~~Wire integration helpers~~ (done)
 2. ~~Fix `allure-js-commons` manifest~~ (done)
 3. ~~Sanitize `integrations.testlio` on framework change~~ (done)
-4. ~~Expand API + preset tree test matrix~~ (partial — JS variants optional)
+4. ~~Expand API + preset tree test matrix~~ (done — TS + JS API paths, all 9 preset smokes)
 5. P2-003 composition refactor when adding next framework features
+6. Optional: `ConfigSidebar` integration test for radiogroup arrow/home/end navigation
 
 ---
 
