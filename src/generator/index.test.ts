@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
-import type { Config } from "@/types"
+import type { APITool, Config } from "@/types"
 import type { FileNode } from "@/types"
+import { officialPresets } from "@/presets/officialPresets"
 import { generateProject } from "./index"
 
 const sampleConfig: Config = {
@@ -14,6 +15,7 @@ const sampleConfig: Config = {
   env: { dotenv: true },
   validation: { zod: false },
   apiTesting: { tool: "none" },
+  integrations: { testlio: false, mailinator: false },
 }
 
 function collectPaths(nodes: FileNode[], prefix = ""): string[] {
@@ -121,6 +123,7 @@ describe("generateProject", () => {
     expect(supportFile?.content).toContain(
       "import 'cypress-mochawesome-reporter/register'",
     )
+    expect(supportFile?.content).toContain("import './allure-hooks'")
   })
 
   it("generates framework-specific setup notes", () => {
@@ -146,5 +149,161 @@ describe("generateProject", () => {
     const paths = collectPaths(generateProject(cfg).tree)
     expect(paths).toContain("src/schemas/loginFixture.ts")
     expect(paths).toContain("src/actors/")
+  })
+
+  it("generates Playwright API module set for built-in API testing", () => {
+    const cfg: Config = {
+      ...sampleConfig,
+      apiTesting: { tool: "playwright-built-in" },
+    }
+    const paths = collectPaths(generateProject(cfg).tree)
+    expect(paths).toContain("tests/api/client.ts")
+    expect(paths).toContain("tests/api/usersApi.ts")
+    expect(paths).toContain("tests/api/users.spec.ts")
+  })
+
+  it("generates WDIO API helpers and example spec for axios", () => {
+    const cfg: Config = {
+      ...sampleConfig,
+      framework: "wdio",
+      apiTesting: { tool: "axios" },
+    }
+    const paths = collectPaths(generateProject(cfg).tree)
+    expect(paths).toContain("src/api/client.ts")
+    expect(paths).toContain("src/api/usersApi.ts")
+    expect(paths).toContain("test/specs/api/users.api.ts")
+  })
+
+  it("generates Testlio integration files for official Testlio preset", () => {
+    const cfg: Config = {
+      ...sampleConfig,
+      integrations: { testlio: true, mailinator: true },
+      reporting: { allure: true, html: true, dot: false },
+    }
+    const paths = collectPaths(generateProject(cfg).tree)
+    expect(paths).toContain("testlio-cli/project-config.json")
+    expect(paths).toContain("lib/mailinator-provider.ts")
+    expect(paths).toContain("lib/allure-helper.ts")
+    expect(paths).toContain("playwright.service.config.ts")
+  })
+
+  describe("integration helper wiring", () => {
+    it("Playwright POM smoke spec imports page-object-fixtures when Allure is enabled", () => {
+      const smoke = findFile(
+        generateProject(sampleConfig).tree,
+        "tests/smoke.spec.ts",
+      )
+      expect(smoke?.content).toContain("lib/page-object-fixtures")
+      expect(smoke?.content).toContain("loginPage")
+    })
+
+    it("Playwright non-POM smoke spec imports helpers-fixtures when Allure is enabled", () => {
+      const cfg: Config = { ...sampleConfig, pattern: "none" }
+      const smoke = findFile(generateProject(cfg).tree, "tests/smoke.spec.ts")
+      expect(smoke?.content).toContain("lib/helpers-fixtures")
+    })
+
+    it("Playwright smoke spec uses @playwright/test when Allure is disabled", () => {
+      const cfg: Config = {
+        ...sampleConfig,
+        reporting: { allure: false, html: true, dot: false },
+      }
+      const smoke = findFile(generateProject(cfg).tree, "tests/smoke.spec.ts")
+      expect(smoke?.content).toContain("@playwright/test")
+      expect(smoke?.content).not.toContain("lib/helpers-fixtures")
+    })
+
+    it("WDIO smoke spec registers failure hooks when Allure is enabled", () => {
+      const cfg: Config = { ...sampleConfig, framework: "wdio" }
+      const smoke = findFile(generateProject(cfg).tree, "test/specs/smoke.ts")
+      expect(smoke?.content).toContain("registerFailureHooks")
+      expect(smoke?.content).toContain("lib/hooks")
+    })
+
+    it("Cypress support imports allure-hooks when Allure is enabled", () => {
+      const cfg: Config = { ...sampleConfig, framework: "cypress" }
+      const support = findFile(
+        generateProject(cfg).tree,
+        "cypress/support/e2e.ts",
+      )
+      expect(support?.content).toContain("./allure-hooks")
+    })
+  })
+
+  describe("API template matrix", () => {
+    const playwrightTools: APITool[] = [
+      "playwright-built-in",
+      "axios",
+      "supertest",
+    ]
+
+    it.each(playwrightTools)(
+      "Playwright generates tests/api module set for %s",
+      (tool) => {
+        const paths = collectPaths(
+          generateProject({ ...sampleConfig, apiTesting: { tool } }).tree,
+        )
+        expect(paths).toContain("tests/api/client.ts")
+        expect(paths).toContain("tests/api/usersApi.ts")
+        expect(paths).toContain("tests/api/users.spec.ts")
+      },
+    )
+
+    it.each(["axios", "supertest"] as const)(
+      "WDIO generates src/api and example spec for %s",
+      (tool) => {
+        const cfg: Config = {
+          ...sampleConfig,
+          framework: "wdio",
+          apiTesting: { tool },
+        }
+        const paths = collectPaths(generateProject(cfg).tree)
+        expect(paths).toContain("src/api/client.ts")
+        expect(paths).toContain("src/api/usersApi.ts")
+        expect(paths).toContain("test/specs/api/users.api.ts")
+      },
+    )
+
+    it("Cypress generates cypress/api module set for axios", () => {
+      const cfg: Config = {
+        ...sampleConfig,
+        framework: "cypress",
+        apiTesting: { tool: "axios" },
+      }
+      const paths = collectPaths(generateProject(cfg).tree)
+      expect(paths).toContain("cypress/api/client.ts")
+      expect(paths).toContain("cypress/api/usersApi.ts")
+      expect(paths).toContain("cypress/api/users.api.ts")
+    })
+  })
+
+  describe("Testlio official presets", () => {
+    const testlioPresets = officialPresets.filter(
+      (preset) => preset.config.integrations.testlio,
+    )
+
+    it("includes all three Testlio official presets", () => {
+      expect(testlioPresets).toHaveLength(3)
+    })
+
+    it.each(testlioPresets.map((preset) => [preset.id, preset.config] as const))(
+      "%s generates Testlio scaffold paths",
+      (_id, config) => {
+        const paths = collectPaths(generateProject(config).tree)
+        expect(paths).toContain("testlio-cli/project-config.json")
+        expect(paths).toContain("lib/allure-helper.ts")
+
+        if (config.framework === "playwright") {
+          expect(paths).toContain("lib/helpers-fixtures.ts")
+          expect(paths).toContain("playwright.service.config.ts")
+        }
+        if (config.framework === "wdio") {
+          expect(paths).toContain("lib/hooks.ts")
+        }
+        if (config.framework === "cypress") {
+          expect(paths).toContain("cypress/support/allure-hooks.ts")
+        }
+      },
+    )
   })
 })

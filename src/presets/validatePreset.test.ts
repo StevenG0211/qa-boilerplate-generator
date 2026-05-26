@@ -22,12 +22,13 @@ const validUploadedPreset: Preset = {
     env: { dotenv: true },
     validation: { zod: false },
     apiTesting: { tool: "none" },
+    integrations: { testlio: false, mailinator: false },
   },
 }
 
 describe("preset validation", () => {
   it("validates every official preset and generates a project tree", () => {
-    expect(officialPresets).toHaveLength(6)
+    expect(officialPresets).toHaveLength(9)
 
     for (const preset of officialPresets) {
       const result = validatePreset(preset)
@@ -104,5 +105,23 @@ describe("preset validation", () => {
 
     expect(cypressDot.success).toBe(false)
     expect(wdioPlaywrightApi.success).toBe(false)
+  })
+
+  it("rejects Testlio integration without Allure reporting", () => {
+    const result = validatePreset({
+      ...validUploadedPreset,
+      config: {
+        ...validUploadedPreset.config,
+        reporting: { allure: false, html: true, dot: false },
+        integrations: { testlio: true, mailinator: false },
+      },
+    })
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(
+        result.errors.some((error) => error.path.includes("integrations")),
+      ).toBe(true)
+    }
   })
 })

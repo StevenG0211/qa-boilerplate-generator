@@ -28,6 +28,7 @@ function baseConfig(overrides: Partial<Config> = {}): Config {
     env: { dotenv: true },
     validation: { zod: false },
     apiTesting: { tool: "none" },
+    integrations: { testlio: false, mailinator: false },
     ...overrides,
   }
 }
@@ -151,6 +152,43 @@ describe("generatePackageJson", () => {
   it("does not include overrides for Cypress projects", () => {
     const pkg = parsePackage(baseConfig({ framework: "cypress" }))
     expect(pkg.overrides).toBeUndefined()
+  })
+
+  it("adds axios when API testing uses axios", () => {
+    const pkg = parsePackage(baseConfig({ apiTesting: { tool: "axios" } }))
+    expect(pkg.devDependencies.axios).toBeDefined()
+  })
+
+  it("adds supertest when API testing uses supertest", () => {
+    const pkg = parsePackage(
+      baseConfig({ apiTesting: { tool: "supertest" } }),
+    )
+    expect(pkg.devDependencies.supertest).toBeDefined()
+    expect(pkg.devDependencies["@types/supertest"]).toBeDefined()
+  })
+
+  it("does not add extra API packages for Playwright built-in API testing", () => {
+    const pkg = parsePackage(
+      baseConfig({
+        framework: "playwright",
+        apiTesting: { tool: "playwright-built-in" },
+      }),
+    )
+    expect(pkg.devDependencies.axios).toBeUndefined()
+    expect(pkg.devDependencies.supertest).toBeUndefined()
+  })
+
+  it("adds integration packages when Testlio and Mailinator are enabled", () => {
+    const pkg = parsePackage(
+      baseConfig({
+        integrations: { testlio: true, mailinator: true },
+      }),
+    )
+    expect(pkg.devDependencies["@testlio/cli"]).toBeDefined()
+    expect(pkg.devDependencies["mailinator-client"]).toBeDefined()
+    expect(pkg.devDependencies["allure-commandline"]).toBeDefined()
+    expect(pkg.devDependencies["allure-js-commons"]).toBeDefined()
+    expect(pkg.scripts["allure:generate"]).toBeDefined()
   })
 
   it("does not include BDD or Cucumber packages in Phase 2 outputs", () => {
