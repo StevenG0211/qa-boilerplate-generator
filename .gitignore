@@ -43,5 +43,8 @@ next-env.d.ts
 # design
 design/
 
+# reference artifacts
+testlio-playwright-givinga.zip
+
 # cursor (local IDE rules — do not commit)
 .cursor/
