@@ -1,17 +1,18 @@
 # QA Boilerplate Generator
 
-Browser-based wizard to scaffold test automation projects for WebdriverIO, Playwright, and Cypress with a live file preview and downloadable ZIP output.
+Browser-based wizard and VS Code extension to scaffold test automation projects for WebdriverIO, Playwright, and Cypress—with a live file preview (web) or workspace write (extension).
 
-Phases 1–3 are implemented: the wizard, dependency manifest, API templates, official presets, JSON import, and Testlio/Mailinator integrations. A VS Code extension is planned for Phase 4 and is not implemented in this repository.
+Phases 1–3 are implemented in the web app. Phase 4 adds a VS Code extension that reuses the shared `@qa-boilerplate/generator` package (no duplicate generator logic, no calls to the deployed web app).
 
 ## Features
 
 - **Configuration wizard** — Choose framework (Playwright, WebdriverIO v9, or Cypress), language (TypeScript or JavaScript), Page Object Model, reporting (Allure, HTML, dot), CI provider, ESLint/Prettier, dotenv, and optional Zod validation.
-- **Dependency manifest** — Generated `package.json` scripts and devDependencies are resolved from compatibility groups in [`src/generator/dependencyManifest.ts`](src/generator/dependencyManifest.ts), not hand-picked per file.
-- **API templates** — Optional API testing scaffolds (transport → domain helper → example spec) under [`src/generator/blocks/api/`](src/generator/blocks/api/) for Playwright built-in request, Axios, or Supertest.
-- **Official presets** — Nine curated starting points in [`presets/official/`](presets/official/), loaded in the UI and validated against [`presets/preset.schema.json`](presets/preset.schema.json).
-- **JSON import** — Upload a preset file, validate fields, then apply or customize before generating.
-- **Integrations** — Testlio (requires Allure reporting) and Mailinator helpers in [`src/generator/blocks/integrations/`](src/generator/blocks/integrations/). Community preset submissions are described in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+- **Dependency manifest** — Generated `package.json` scripts and devDependencies are resolved from compatibility groups in [`packages/generator/src/generator/dependencyManifest.ts`](packages/generator/src/generator/dependencyManifest.ts), not hand-picked per file.
+- **API templates** — Optional API testing scaffolds (transport → domain helper → example spec) under [`packages/generator/src/generator/blocks/api/`](packages/generator/src/generator/blocks/api/) for Playwright built-in request, Axios, or Supertest.
+- **Official presets** — Nine curated starting points in [`packages/generator/presets/official/`](packages/generator/presets/official/), validated against [`packages/generator/presets/preset.schema.json`](packages/generator/presets/preset.schema.json).
+- **JSON import** — Upload a preset file (web) or open a JSON file (extension), validate fields, then apply or customize before generating.
+- **Integrations** — Testlio (requires Allure reporting) and Mailinator helpers in [`packages/generator/src/generator/blocks/integrations/`](packages/generator/src/generator/blocks/integrations/). Community preset submissions are described in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+- **VS Code extension** — Command Palette: **QA Gen: Generate Test Project** (requires an open workspace folder).
 
 ### Official presets
 
@@ -39,43 +40,43 @@ Phases 1–3 are implemented: the wizard, dependency manifest, API templates, of
 npm install
 ```
 
-## Scripts
+## Scripts (repo root)
 
 | Command | Description |
 | --- | --- |
-| `npm run dev` | Start the dev server at [http://localhost:3000](http://localhost:3000) |
-| `npm run build` | Production build |
-| `npm run start` | Run the production server |
-| `npm run lint` | ESLint |
-| `npm run typecheck` | TypeScript (`tsc --noEmit`) |
+| `npm run dev` | Start the web dev server at [http://localhost:3000](http://localhost:3000) |
+| `npm run build` | Production build (`apps/web`) |
+| `npm run start` | Run the production web server |
+| `npm run lint` | ESLint (`apps/web`) |
+| `npm run typecheck` | TypeScript across workspaces |
 | `npm run format` | Format with Prettier |
 | `npm run format:check` | Check formatting |
-| `npm test` | Unit tests (Vitest) |
-| `npm run validate:presets` | Validate all preset JSON under `presets/official/` and `presets/community/` |
+| `npm test` | Unit tests (generator + web; 74 total) |
+| `npm run validate:presets` | Validate preset JSON under `packages/generator/presets/` |
+
+## Monorepo layout
+
+```text
+packages/generator/   @qa-boilerplate/generator — generateProject, presets, types
+apps/web/             Next.js wizard UI
+apps/vscode-extension/ VS Code extension
+scripts/              validate-presets.ts
+docs/                 Roadmap and phase docs
+```
 
 ## Deploy (Vercel)
 
 1. Push this repository to GitHub (or GitLab / Bitbucket).
-2. Import the repo in [Vercel](https://vercel.com/new) and use the default Next.js settings.
-3. No environment variables are required for the hosted wizard.
+2. Import the repo in [Vercel](https://vercel.com/new).
+3. Set **Root Directory** to `apps/web`.
+4. Build command: `npm run build` (from repo root) or `cd ../.. && npm run build` if building from `apps/web` only after `npm install` at root.
+5. No environment variables are required for the hosted wizard.
 
 Preview deployments are created automatically for pull requests when the Git integration is enabled.
 
-## Project layout
+## VS Code extension
 
-- `presets/official/` — Shipped preset JSON files
-- `presets/community/` — Community submissions (see CONTRIBUTING)
-- `presets/preset.schema.json` — JSON Schema for preset files
-- `scripts/` — Maintenance scripts (e.g. preset validation)
-- `src/app` — Next.js App Router
-- `src/components` — UI (sidebar, preview, shared primitives)
-- `src/context` — Config state and reducer
-- `src/generator` — Pure generation logic (no React)
-- `src/generator/blocks/api/` — API template generators
-- `src/generator/blocks/integrations/` — Testlio, Mailinator, Allure helpers
-- `src/presets/` — Preset schema, validation, and official preset loader
-- `src/types` — Shared TypeScript types
-- `src/lib` — ZIP building, syntax highlighting, and shared helpers
+See [`apps/vscode-extension/README.md`](apps/vscode-extension/README.md) for local development, `.vsix` packaging, and Marketplace publishing.
 
 ## Roadmap docs
 
@@ -84,6 +85,6 @@ Preview deployments are created automatically for pull requests when the Git int
 - Phase 2 ticket breakdown: [`docs/phase2/README.md`](docs/phase2/README.md)
 - Framework dependency mapping: [`docs/dependency-mapping.md`](docs/dependency-mapping.md)
 - Phase 3 presets and JSON import: [`docs/qa-boilerplate-generator-phase3.md`](docs/qa-boilerplate-generator-phase3.md)
-- Phase 4 VS Code extension plan (not implemented): [`docs/qa-boilerplate-generator-phase4.md`](docs/qa-boilerplate-generator-phase4.md)
+- Phase 4 VS Code extension: [`docs/qa-boilerplate-generator-phase4.md`](docs/qa-boilerplate-generator-phase4.md)
 
 UI/design spec (colors, type, components): [`docs/design/qa-boilerplate-generator-design-spec.md`](docs/design/qa-boilerplate-generator-design-spec.md).

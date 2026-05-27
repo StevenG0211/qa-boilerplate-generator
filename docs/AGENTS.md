@@ -6,19 +6,20 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## QA Boilerplate Generator
 
-- **Stack:** Next.js 16 App Router, React 19, TypeScript strict, Tailwind v4, ESLint + Prettier.
-- **Phase 1 docs:** Spec in `docs/qa-boilerplate-generator-phase1.md`; ticket index and breakdown in `docs/phase1/README.md` (per-ticket folders under `docs/phase1/tickets/`).
-- **Roadmap:** Phase 2 is dependency mapping and compatibility hardening (`docs/qa-boilerplate-generator-phase2.md`, `docs/dependency-mapping.md`); Phase 3 is presets and JSON import (`docs/qa-boilerplate-generator-phase3.md`); Phase 4 is the VS Code extension (`docs/qa-boilerplate-generator-phase4.md`).
-- **BDD:** Do not add BDD/Cucumber generation in the active roadmap. If reconsidered later, treat it as separate WDIO-only research.
-- **Architecture:** `src/generator` is pure (no React). `src/context` holds `ConfigContext`, `useReducer`, and `defaultConfig`. `src/types` defines `Config` and file-tree types.
-- **Scripts:** `npm run dev`, `npm run build`, `npm run lint`, `npm run typecheck`, `npm run format`, `npm run test`. Tests use Vitest (`vitest.config.ts`, `src/**/*.test.ts`).
-- **Import alias:** `@/*` maps to `src/*`.
+- **Stack:** npm workspaces monorepo; Next.js 16 App Router (`apps/web`), shared `@qa-boilerplate/generator` package, VS Code extension (`apps/vscode-extension`); React 19, TypeScript strict, Tailwind v4, ESLint + Prettier.
+- **Phase 1 docs:** Spec in `docs/qa-boilerplate-generator-phase1.md`; ticket index in `docs/phase1/README.md`.
+- **Roadmap:** Phase 4 VS Code extension (`docs/qa-boilerplate-generator-phase4.md`); shared package assessment in `docs/phase4/shared-package-assessment.md`.
+- **BDD:** Do not add BDD/Cucumber generation in the active roadmap.
+- **Architecture:** `packages/generator` is pure (no React). `apps/web/src/context` holds `ConfigContext` and reducer. Types and `generateProject` live in `@qa-boilerplate/generator`.
+- **Scripts (root):** `npm run dev`, `npm run build`, `npm run lint`, `npm run typecheck`, `npm run format`, `npm test`, `npm run validate:presets`.
+- **Web import alias:** `@/*` maps to `apps/web/src/*`. Generator consumers use `@qa-boilerplate/generator`.
 
 ## Learned User Preferences
 
-- Prefer validating changes with one-shot commands (`npm run lint`, `npm run typecheck`, `npx vitest run`); avoid long-lived dev servers in automation unless the user needs them.
+- Prefer validating changes with one-shot commands (`npm run lint`, `npm run typecheck`, `npm test`); avoid long-lived dev servers in automation unless the user needs them.
 
 ## Learned Workspace Facts
 
-- Phase 1 Cursor rule for TS/TSX: `.cursor/rules/qa-boilerplate-phase1.mdc` (tickets location, strict TS, pure generator, responsive layout intent).
-- Pencil UI tokens and layout reference: `docs/design/qa-boilerplate-generator-design-spec.md` (extracted from `design/qa-boilerplate-generator.pen`).
+- Phase 1 Cursor rule: `.cursor/rules/qa-boilerplate-phase1.mdc`
+- Pencil UI tokens: `docs/design/qa-boilerplate-generator-design-spec.md`
+- Vercel **Root Directory:** `apps/web`

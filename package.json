@@ -2,45 +2,24 @@
   "name": "qa-boilerplate-generator",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "typecheck": "tsc --noEmit",
+    "dev": "npm run dev -w @qa-boilerplate/web",
+    "build": "npm run build -w @qa-boilerplate/web",
+    "start": "npm run start -w @qa-boilerplate/web",
+    "lint": "npm run lint -w @qa-boilerplate/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run",
+    "test": "npm run test -w @qa-boilerplate/generator && npm run test -w @qa-boilerplate/web",
+    "compile:extension": "npm run compile -w qa-boilerplate-generator",
     "validate:presets": "tsx scripts/validate-presets.ts"
   },
-  "dependencies": {
-    "clsx": "^2.1.1",
-    "highlight.js": "^11.11.1",
-    "jszip": "^3.10.1",
-    "lucide-react": "^1.7.0",
-    "next": "16.2.2",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "zod": "^4.3.6"
-  },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.6.1",
-    "@tailwindcss/postcss": "^4",
-    "@vitejs/plugin-react": "^5.1.0",
-    "@types/highlight.js": "^9.12.4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.2",
-    "eslint-config-prettier": "^10.1.8",
-    "jsdom": "^27.0.0",
     "prettier": "^3.8.1",
-    "tailwindcss": "^4",
-    "tsx": "^4.21.0",
-    "typescript": "^5",
-    "vitest": "^4.1.2"
+    "tsx": "^4.21.0"
   }
 }

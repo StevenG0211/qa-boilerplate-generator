@@ -83,12 +83,12 @@ Rationale:
 
 ## Extraction checklist (Phase 4 kickoff)
 
-- [ ] Create `packages/generator` with `package.json` (`main`, `types`, `exports`)
-- [ ] Move generator + presets + shared types
-- [ ] Configure Turborepo or npm workspaces
-- [ ] Update web app imports and Vitest paths
-- [ ] Verify `npm test`, `npm run build` in both packages
-- [ ] Document extension consumption in Phase 4 tickets
+- [x] Create `packages/generator` with `package.json` (`main`, `types`, `exports`)
+- [x] Move generator + presets + shared types
+- [x] Configure npm workspaces (no Turborepo)
+- [x] Update web app imports and Vitest paths
+- [x] Verify `npm test`, `npm run build` in both packages
+- [x] Document extension consumption in Phase 4 tickets (`apps/vscode-extension`)
 
 ## Technical debt notes (Phase 2/3 closeout)
 
