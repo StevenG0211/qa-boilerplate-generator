@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "rootDir": "src",
+    "paths": {
+      "@/types": ["../../packages/generator/src/types"],
+      "@/types/*": ["../../packages/generator/src/types/*"],
+      "@/generator": ["../../packages/generator/src/generator"],
+      "@/generator/*": ["../../packages/generator/src/generator/*"],
+      "@/presets": ["../../packages/generator/src/presets"],
+      "@/presets/*": ["../../packages/generator/src/presets/*"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
