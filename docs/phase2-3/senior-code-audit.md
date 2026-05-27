@@ -2,11 +2,15 @@
 
 Audit date: 2026-05-26  
 Last updated: 2026-05-26  
-Scope: Phase 2/3 closeout (API templates, Testlio integrations, presets, CI)
+Scope: Phase 2/3 closeout (API templates, Testlio integrations, presets, CI); Phase 4 monorepo + extension status
 
 ## Executive summary
 
-Phase 2/3 closeout items are complete. Critical generator wiring, preset validation CLI, expanded test matrix (JS API paths, all nine official preset smokes), generated README notes for Cypress Testlio and Playwright service config, and component-level preset UI tests are in place. **Ready for Phase 4 kickoff (P4-001 extraction)** pending green CI. Remaining intentional debt: P2-003 framework composition refactor and optional full `ConfigSidebar` browser E2E for radiogroup keyboard navigation.
+Phase 2/3 closeout items are complete. Critical generator wiring, preset validation CLI, expanded test matrix (JS API paths, all nine official preset smokes), generated README notes for Cypress Testlio and Playwright service config, and component-level preset UI tests are in place.
+
+**P4-001 extraction is complete.** The repo is an npm workspaces monorepo: `packages/generator` (`@qa-boilerplate/generator`), `apps/web` (Next.js wizard), and `apps/vscode-extension` (Command Palette scaffold). **Phase 4 is product-complete:** extension wizard, workspace file writer, local `.vsix` packaging, and CI extension compile all pass.
+
+Remaining intentional debt: P2-003 framework composition refactor and optional full `ConfigSidebar` browser E2E for radiogroup keyboard navigation. Optional next step: Marketplace publish (documented, not executed).
 
 ---
 
@@ -106,13 +110,19 @@ Generated stub unchanged. Generated README documents manual enablement (`PLAYWRI
 2. ~~Fix `allure-js-commons` manifest~~ (done)
 3. ~~Sanitize `integrations.testlio` on framework change~~ (done)
 4. ~~Expand API + preset tree test matrix~~ (done — TS + JS API paths, all 9 preset smokes)
-5. P2-003 composition refactor when adding next framework features
-6. Optional: `ConfigSidebar` integration test for radiogroup arrow/home/end navigation
+5. ~~Phase 4 VS Code extension (P4-001–P4-005)~~ (done — monorepo extraction, wizard, file writer, `.vsix` packaging)
+6. P2-003 composition refactor when adding next framework features
+7. Optional: `ConfigSidebar` integration test for radiogroup arrow/home/end navigation
+8. Optional: Marketplace publish (`vsce publish`; see [marketplace-publishing.md](../phase4/marketplace-publishing.md))
+9. ~~`@vscode/test-electron` extension smoke tests~~ (done — `npm run test:extension`; manual checklist still covers full 9-preset matrix)
 
 ---
 
 ## Related docs
 
+- [Phase 4 ticket index](../phase4/README.md)
 - [P4-001 Shared package assessment](../phase4/shared-package-assessment.md)
+- [Marketplace publishing](../phase4/marketplace-publishing.md)
+- [Extension smoke test checklist](../phase4/extension-smoke-test.md)
 - [API template strategy](../phase2/api-template-strategy.md)
 - [Phase 3 plan](../qa-boilerplate-generator-phase3.md)
