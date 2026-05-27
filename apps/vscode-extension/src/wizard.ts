@@ -4,6 +4,7 @@ import {
   officialPresets,
   parsePresetJson,
   type APITool,
+  type CIProvider,
   type Config,
   type Framework,
   type Language,
@@ -231,6 +232,44 @@ async function configureManually(
     return undefined
   }
   config.pattern = pattern
+
+  const ciProvider = await pickEnum<CIProvider>(
+    "CI provider",
+    [
+      { label: "None", value: "none" },
+      { label: "GitHub Actions", value: "github" },
+      { label: "GitLab CI", value: "gitlab" },
+    ],
+    config.ci.provider,
+  )
+  if (!ciProvider) {
+    return undefined
+  }
+  config.ci = { provider: ciProvider }
+
+  const eslint = await pickYesNo("Enable ESLint?", config.linting.eslint)
+  if (eslint === undefined) {
+    return undefined
+  }
+  config.linting = { ...config.linting, eslint }
+
+  const prettier = await pickYesNo("Enable Prettier?", config.linting.prettier)
+  if (prettier === undefined) {
+    return undefined
+  }
+  config.linting = { ...config.linting, prettier }
+
+  const dotenv = await pickYesNo("Include dotenv setup?", config.env.dotenv)
+  if (dotenv === undefined) {
+    return undefined
+  }
+  config.env = { dotenv }
+
+  const zod = await pickYesNo("Enable Zod validation helpers?", config.validation.zod)
+  if (zod === undefined) {
+    return undefined
+  }
+  config.validation = { zod }
 
   const reporting = await pickReporting(config)
   if (!reporting) {
