@@ -1,13 +1,13 @@
 import { readdir, readFile } from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
-import { parsePresetJson } from "../src/presets/validatePreset"
+import { parsePresetJson } from "@qa-boilerplate/generator/presets"
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
 
 const PRESET_DIRS = [
-  path.join(root, "presets", "official"),
-  path.join(root, "presets", "community"),
+  path.join(root, "packages", "generator", "presets", "official"),
+  path.join(root, "packages", "generator", "presets", "community"),
 ] as const
 
 async function listPresetJsonFiles(dir: string): Promise<string[]> {
@@ -33,7 +33,9 @@ async function main(): Promise<void> {
   ).flat()
 
   if (files.length === 0) {
-    console.error("No preset JSON files found under presets/official or presets/community.")
+    console.error(
+      "No preset JSON files found under packages/generator/presets/official or community.",
+    )
     process.exit(1)
   }
 
