@@ -3,7 +3,7 @@
 import { ConfigSidebar } from "@/components/sidebar/ConfigSidebar"
 import { PreviewPanel } from "@/components/preview/PreviewPanel"
 import { useConfig } from "@/context/ConfigContext"
-import { generateProject } from "@/generator"
+import { generateProject } from "@qa-boilerplate/generator"
 import { buildZip } from "@/lib/zipBuilder"
 import { Download, Menu, RotateCcw } from "lucide-react"
 import { useMemo, useState } from "react"

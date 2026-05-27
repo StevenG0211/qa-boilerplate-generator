@@ -1,7 +1,13 @@
 "use client"
 
 import { useState, type ChangeEvent, type KeyboardEvent } from "react"
-import type { APITool, CIProvider, Framework, Language, Pattern } from "@/types"
+import type {
+  APITool,
+  CIProvider,
+  Framework,
+  Language,
+  Pattern,
+} from "@qa-boilerplate/generator"
 import { useConfig } from "@/context/ConfigContext"
 import { AccordionSection } from "@/components/ui/AccordionSection"
 import { SegmentedControl } from "@/components/ui/SegmentedControl"
@@ -12,7 +18,7 @@ import {
   parsePresetJson,
   type Preset,
   type PresetValidationError,
-} from "@/presets"
+} from "@qa-boilerplate/generator"
 import { PresetCard } from "@/components/sidebar/PresetCard"
 import { PresetTagList } from "@/components/sidebar/PresetTag"
 

@@ -2,7 +2,7 @@
 
 import type { KeyboardEvent } from "react"
 import { cn } from "@/lib/cn"
-import type { Preset } from "@/presets"
+import type { Preset } from "@qa-boilerplate/generator"
 import { PresetTagList } from "@/components/sidebar/PresetTag"
 
 type PresetCardProps = {

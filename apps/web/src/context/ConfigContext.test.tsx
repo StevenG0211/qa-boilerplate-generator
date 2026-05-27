@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it } from "vitest"
 import { ConfigProvider, useConfig } from "@/context/ConfigContext"
-import { officialPresets } from "@/presets/officialPresets"
+import { officialPresets } from "@qa-boilerplate/generator"
 
 function ApplyPresetProbe() {
   const { config, activePreset, dispatch } = useConfig()

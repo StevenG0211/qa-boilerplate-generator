@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 import { PresetCard } from "@/components/sidebar/PresetCard"
-import type { Preset } from "@/presets"
+import type { Preset } from "@qa-boilerplate/generator"
 
 const samplePreset: Preset = {
   schemaVersion: 1,

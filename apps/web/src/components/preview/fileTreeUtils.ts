@@ -1,4 +1,4 @@
-import type { FileNode } from "@/types"
+import type { FileNode } from "@qa-boilerplate/generator"
 
 export function firstFilePath(
   nodes: FileNode[],

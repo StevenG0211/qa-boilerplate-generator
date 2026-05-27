@@ -10,8 +10,8 @@ import type {
   Pattern,
   ReportingConfig,
   ValidationConfig,
-} from "@/types"
-import type { Preset, PresetSource } from "@/presets"
+} from "@qa-boilerplate/generator"
+import type { Preset, PresetSource } from "@qa-boilerplate/generator"
 import { defaultConfig } from "./defaultConfig"
 
 export type ActivePreset = {

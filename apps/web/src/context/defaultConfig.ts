@@ -1,4 +1,4 @@
-import type { Config } from "@/types"
+import type { Config } from "@qa-boilerplate/generator"
 
 export const defaultConfig: Config = {
   projectName: "my-test-project",

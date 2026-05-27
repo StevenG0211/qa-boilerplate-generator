@@ -1,7 +1,7 @@
 "use client"
 
 import { useConfig } from "@/context/ConfigContext"
-import { generateProject } from "@/generator"
+import { generateProject } from "@qa-boilerplate/generator"
 import { useMemo, useState } from "react"
 import { FileTree } from "./FileTree"
 import { countFiles, findFileNode, firstFilePath } from "./fileTreeUtils"

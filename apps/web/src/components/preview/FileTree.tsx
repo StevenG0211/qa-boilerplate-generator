@@ -2,7 +2,7 @@
 
 import { ChevronDown, FileText, Folder } from "lucide-react"
 import { useState } from "react"
-import type { FileNode } from "@/types"
+import type { FileNode } from "@qa-boilerplate/generator"
 import { focusRingClassName } from "@/lib/a11yClasses"
 import { cn } from "@/lib/cn"
 

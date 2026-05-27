@@ -9,7 +9,7 @@ import {
   type Dispatch,
   type ReactNode,
 } from "react"
-import type { Config } from "@/types"
+import type { Config } from "@qa-boilerplate/generator"
 import {
   configReducer,
   type ActivePreset,

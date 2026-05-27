@@ -1,5 +1,5 @@
 import JSZip from "jszip"
-import type { FileNode, GeneratedProject } from "@/types"
+import type { FileNode, GeneratedProject } from "@qa-boilerplate/generator"
 
 function sanitizeSegment(name: string): string {
   return name.replace(/[/\\]/g, "-") || "untitled"
