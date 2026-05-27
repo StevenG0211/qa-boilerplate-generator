@@ -11,6 +11,16 @@ npm run compile:extension
 
 Open an empty folder as the workspace root.
 
+## Automated tests
+
+From the repository root:
+
+```bash
+npm run test:extension
+```
+
+This launches `@vscode/test-electron`, activates the extension, and generates the `cypress-js-minimal` preset into a temp workspace via the test-only `QA_GEN_TEST_PRESET` autopilot path. Use the manual checklist below for full coverage (all nine presets, JSON import, overwrite confirmation, manual configure).
+
 ## Checklist
 
 ### Command availability
@@ -55,8 +65,4 @@ Sentinel paths match the generator test map in `packages/generator/src/generator
 - [ ] Successful write → information message with file count and project folder name.
 - [ ] Simulate a write failure (e.g. read-only path if feasible) → error message and Output channel listing failures.
 
-## Automated tests (deferred)
-
-`@vscode/test-electron` is not set up in this repo. Use this checklist for acceptance; add automated extension tests when setup cost is justified.
-
-See [Phase 4 README](./README.md) for deferred items.
+See [Phase 4 README](./README.md) for quality gates and deferred items.

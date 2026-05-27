@@ -15,6 +15,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "npm run test -w @qa-boilerplate/generator && npm run test -w @qa-boilerplate/web",
+    "test:extension": "npm run test:extension -w qa-boilerplate-generator",
     "compile:extension": "npm run compile -w qa-boilerplate-generator",
     "validate:presets": "tsx scripts/validate-presets.ts"
   },

@@ -23,6 +23,8 @@ apps/web/out/
 # production
 /build
 apps/vscode-extension/dist/
+apps/vscode-extension/out/
+.vscode-test/
 *.vsix
 
 # misc

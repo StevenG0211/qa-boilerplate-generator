@@ -29,8 +29,10 @@
   },
   "scripts": {
     "compile": "node esbuild.mjs",
+    "compile:tests": "tsc -p tsconfig.test.json",
     "watch": "node esbuild.mjs --watch",
     "typecheck": "tsc --noEmit",
+    "test:extension": "npm run compile && npm run compile:tests && node ./out/test/runTest.js",
     "package": "npm run compile && vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile"
   },
@@ -38,10 +40,14 @@
     "@qa-boilerplate/generator": "*"
   },
   "devDependencies": {
+    "@types/mocha": "^10.0.10",
     "@types/node": "^20",
     "@types/vscode": "^1.85.0",
+    "@vscode/test-electron": "^2.4.1",
     "@vscode/vsce": "^3.2.1",
     "esbuild": "^0.25.0",
+    "glob": "^11.0.3",
+    "mocha": "^11.1.0",
     "typescript": "^5"
   }
 }

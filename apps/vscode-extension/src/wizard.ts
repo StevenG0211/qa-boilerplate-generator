@@ -20,10 +20,17 @@ import {
   writeProjectToWorkspace,
 } from "./fileWriter"
 import { flattenFilePaths, formatTreePreview } from "./treePreview"
+import { runGenerateWizardAutopilot } from "./wizardAutopilot"
 
 type SourceKind = "official" | "import" | "manual"
 
 export async function runGenerateWizard(): Promise<void> {
+  const testPresetId = process.env.QA_GEN_TEST_PRESET
+  if (testPresetId) {
+    await runGenerateWizardAutopilot(testPresetId)
+    return
+  }
+
   const folder = await pickWorkspaceFolder()
   if (!folder) {
     return

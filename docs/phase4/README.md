@@ -17,7 +17,7 @@ Phase 4 adds a VS Code extension that reuses `@qa-boilerplate/generator` — the
 | P4-002 | VS Code extension scaffold | Done |
 | P4-003 | Extension wizard | Done |
 | P4-004 | Workspace file writer | Done |
-| P4-005 | Packaging and publishing | Done except marketplace publish (documented, not executed) |
+| P4-005 | Packaging and publishing | Done — VSIX verified locally; Marketplace publish deferred (see [marketplace-publishing.md](./marketplace-publishing.md)) |
 
 ## Monorepo layout
 
@@ -73,9 +73,10 @@ npm run validate:presets
 npm test
 npm run build
 npm run compile:extension
+npm run test:extension
 ```
 
-CI runs the same steps plus `compile:extension` (see `.github/workflows/ci.yml`).
+CI runs the same steps plus `compile:extension` and `test:extension` (see `.github/workflows/ci.yml`).
 
 ## Known build warnings
 
@@ -92,7 +93,6 @@ If `npm run build` fails in CI, check `apps/web/next.config.ts` (`transpilePacka
 | Item | Reason |
 | --- | --- |
 | Marketplace publish (`vsce publish`) | Optional; documented in [marketplace-publishing.md](./marketplace-publishing.md) |
-| `@vscode/test-electron` automated tests | Manual smoke checklist covers acceptance; add when setup cost is justified |
 | Side Bar view / commands | Out of scope for Phase 4 |
 | First-run Walkthrough | Out of scope unless trivial |
 | P2-003 monolithic framework decomposition | Separate architecture ticket |
@@ -105,6 +105,6 @@ If `npm run build` fails in CI, check `apps/web/next.config.ts` (`transpilePacka
 Phase 4 is **product-complete** when:
 
 - The extension runs locally (F5) and produces a `.vsix` via `npm run package`.
-- CI validates extension typecheck and esbuild compile.
+- CI validates extension typecheck, esbuild compile, and `@vscode/test-electron` smoke test (`npm run test:extension`).
 - Manual wizard, official presets, and JSON import match web generator behavior.
 - Marketplace publish remains optional and documented, not executed.
