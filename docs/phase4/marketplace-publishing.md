@@ -21,9 +21,9 @@ The extension `package.json` uses `"publisher": "qa-boilerplate-gen"`. Change th
 - [ ] Version bumped in `apps/vscode-extension/package.json`
 - [ ] `npm run compile` succeeds at repo root (`npm install` first)
 - [ ] `npm test` and `npm run validate:presets` pass
-- [ ] `README.md` and `CHANGELOG.md` (optional) are accurate
+- [ ] `README.md` and `CHANGELOG.md` are accurate
 - [ ] `media/icon.png` is 128×128 or 256×256 PNG
-- [ ] Repository URL in `package.json` `repository` field (add before publish)
+- [x] Repository URL in `package.json` `repository` field
 
 ## Build VSIX locally
 
