@@ -49,7 +49,7 @@ apps/
       fileWriter.ts
 ```
 
-The exact monorepo tool can be decided when Phase 4 starts. A workspace split should happen only if the generator core is stable enough to justify the move.
+**Implemented:** npm workspaces monorepo (`packages/generator`, `apps/web`, `apps/vscode-extension`). See [Phase 4 ticket index](./phase4/README.md).
 
 ## Extension Requirements
 
@@ -70,10 +70,10 @@ Confirm whether the generator should be extracted into a package before extensio
 
 Acceptance criteria:
 
-- [ ] Current generator dependencies are audited.
-- [ ] Extraction cost is documented.
-- [ ] Web app build implications are documented.
-- [ ] A go/no-go decision is made for package extraction.
+- [x] Current generator dependencies are audited.
+- [x] Extraction cost is documented.
+- [x] Web app build implications are documented.
+- [x] A go/no-go decision is made for package extraction.
 
 ### P4-002 — VS Code Extension Scaffold
 
@@ -81,10 +81,10 @@ Create the extension package and command entry point.
 
 Acceptance criteria:
 
-- [ ] Extension package is created.
-- [ ] Command palette command is registered.
-- [ ] Extension builds locally.
-- [ ] Extension can import or call the shared generator code.
+- [x] Extension package is created.
+- [x] Command palette command is registered.
+- [x] Extension builds locally.
+- [x] Extension can import or call the shared generator code.
 
 ### P4-003 — Extension Wizard
 
@@ -92,10 +92,10 @@ Implement the configuration and preset flow inside VS Code.
 
 Acceptance criteria:
 
-- [ ] User can choose a framework manually.
-- [ ] User can apply an official preset.
-- [ ] User can import and validate a JSON preset.
-- [ ] Preview updates before generation.
+- [x] User can choose a framework manually.
+- [x] User can apply an official preset.
+- [x] User can import and validate a JSON preset.
+- [x] Preview updates before generation.
 
 ### P4-004 — Workspace File Writer
 
@@ -103,10 +103,10 @@ Write the generated project tree to the user's open workspace.
 
 Acceptance criteria:
 
-- [ ] Files are written with VS Code workspace APIs.
-- [ ] Missing workspace folder is handled clearly.
-- [ ] Existing files trigger an overwrite confirmation.
-- [ ] Success and failure states are shown to the user.
+- [x] Files are written with VS Code workspace APIs.
+- [x] Missing workspace folder is handled clearly.
+- [x] Existing files trigger an overwrite confirmation.
+- [x] Success and failure states are shown to the user.
 
 ### P4-005 — Packaging And Publishing
 
@@ -114,10 +114,10 @@ Package and publish the extension.
 
 Acceptance criteria:
 
-- [ ] Extension README is created.
-- [ ] Extension icon and metadata are added.
-- [ ] `.vsix` package can be produced locally.
-- [ ] Marketplace publishing path is documented.
+- [x] Extension README is created.
+- [x] Extension icon and metadata are added.
+- [x] `.vsix` package can be produced locally.
+- [x] Marketplace publishing path is documented. *(See [marketplace-publishing.md](./phase4/marketplace-publishing.md); `vsce publish` not executed.)*
 
 ## Success Criteria
 

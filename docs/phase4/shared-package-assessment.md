@@ -4,17 +4,18 @@
 
 Evaluate extracting the generator core into a shared package before the VS Code extension (Phase 4) to avoid duplicating logic.
 
-## Current layout
+## Current layout (post-extraction)
 
 | Area | Path | React coupling |
 |------|------|----------------|
-| Generator | `src/generator/` | None |
-| Presets | `src/presets/` | None |
-| Types | `src/types/` | None |
-| UI | `src/components/`, `src/context/` | Yes |
-| App | `src/app/` | Yes |
+| Generator | `packages/generator/src/generator/` | None |
+| Presets | `packages/generator/src/presets/`, `packages/generator/presets/` | None |
+| Types | `packages/generator/src/types/` | None |
+| Web UI | `apps/web/src/components/`, `apps/web/src/context/` | Yes |
+| Web app | `apps/web/src/app/` | Yes |
+| VS Code extension | `apps/vscode-extension/src/` | None (imports `@qa-boilerplate/generator`) |
 
-The generator and preset validation modules are already isolated from React. The web app imports them via `@/*` path alias.
+The generator and preset validation modules are isolated from React. The web app and extension consume them via the `@qa-boilerplate/generator` workspace package.
 
 ## Dependencies audit
 
@@ -73,13 +74,7 @@ Same as Option A with public/private registry publish step.
 
 ## Recommendation
 
-**Go** on package extraction at the start of Phase 4, not during Phase 2/3 closeout.
-
-Rationale:
-
-1. Phase 2/3 closeout adds integrations and API layers — stabilizing these in-repo first reduces migration churn.
-2. Generator is already React-free; extraction is mechanical once APIs freeze.
-3. VS Code extension should import a package, not duplicate strings from `playwright.ts` / `wdio.ts`.
+**Completed.** Package extraction was executed at Phase 4 kickoff using npm workspaces. See the extraction checklist below and [Phase 4 ticket index](./README.md).
 
 ## Extraction checklist (Phase 4 kickoff)
 
