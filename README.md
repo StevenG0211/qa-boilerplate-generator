@@ -2,7 +2,7 @@
 
 Browser-based wizard and VS Code extension to scaffold test automation projects for WebdriverIO, Playwright, and Cypress—with a live file preview (web) or workspace write (extension).
 
-Phases 1–3 are implemented in the web app. Phase 4 adds a VS Code extension that reuses the shared `@qa-boilerplate/generator` package (no duplicate generator logic, no calls to the deployed web app).
+Phases 1–3 are implemented in the web app. Phase 4 adds a VS Code extension that reuses the shared `@qa-boilerplate/generator` package (no duplicate generator logic, no calls to the deployed web app). Phase 4 is implemented in this repo; Marketplace publish is optional.
 
 ## Features
 
@@ -51,8 +51,9 @@ npm install
 | `npm run typecheck` | TypeScript across workspaces |
 | `npm run format` | Format with Prettier |
 | `npm run format:check` | Check formatting |
-| `npm test` | Unit tests (generator + web; 74 total) |
+| `npm test` | Unit tests (generator + web) |
 | `npm run validate:presets` | Validate preset JSON under `packages/generator/presets/` |
+| `npm run compile:extension` | Bundle VS Code extension (`apps/vscode-extension`) |
 
 ## Monorepo layout
 
@@ -69,14 +70,18 @@ docs/                 Roadmap and phase docs
 1. Push this repository to GitHub (or GitLab / Bitbucket).
 2. Import the repo in [Vercel](https://vercel.com/new).
 3. Set **Root Directory** to `apps/web`.
-4. Build command: `npm run build` (from repo root) or `cd ../.. && npm run build` if building from `apps/web` only after `npm install` at root.
-5. No environment variables are required for the hosted wizard.
+4. **Install Command:** `npm ci` (from repo root when npm workspaces are auto-detected; use default if Vercel handles monorepo install).
+5. **Build Command:** `npm run build` (runs the web workspace via the root script) or `cd ../.. && npm run build` if the build cwd is `apps/web`.
+6. **Output:** Next.js default (`.next`). No `vercel.json` is required — `@qa-boilerplate/generator` is resolved via workspace install and `transpilePackages` in `apps/web/next.config.ts`.
+7. No environment variables are required for the hosted wizard.
 
 Preview deployments are created automatically for pull requests when the Git integration is enabled.
 
+See also [docs/phase4/README.md](docs/phase4/README.md) for deploy notes and known build warnings.
+
 ## VS Code extension
 
-See [`apps/vscode-extension/README.md`](apps/vscode-extension/README.md) for local development, `.vsix` packaging, and Marketplace publishing.
+See [`apps/vscode-extension/README.md`](apps/vscode-extension/README.md) for local development, `.vsix` packaging (`npm run package`), and optional Marketplace publishing.
 
 ## Roadmap docs
 
@@ -86,5 +91,6 @@ See [`apps/vscode-extension/README.md`](apps/vscode-extension/README.md) for loc
 - Framework dependency mapping: [`docs/dependency-mapping.md`](docs/dependency-mapping.md)
 - Phase 3 presets and JSON import: [`docs/qa-boilerplate-generator-phase3.md`](docs/qa-boilerplate-generator-phase3.md)
 - Phase 4 VS Code extension: [`docs/qa-boilerplate-generator-phase4.md`](docs/qa-boilerplate-generator-phase4.md)
+- Phase 4 ticket index and dev guide: [`docs/phase4/README.md`](docs/phase4/README.md)
 
 UI/design spec (colors, type, components): [`docs/design/qa-boilerplate-generator-design-spec.md`](docs/design/qa-boilerplate-generator-design-spec.md).
