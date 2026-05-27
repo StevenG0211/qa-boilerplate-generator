@@ -21,5 +21,11 @@
   "devDependencies": {
     "prettier": "^3.8.1",
     "tsx": "^4.21.0"
+  },
+  "optionalDependencies": {
+    "@next/swc-linux-x64-gnu": "^16.2.2",
+    "@next/swc-linux-x64-musl": "^16.2.2",
+    "lightningcss-linux-x64-gnu": "^1.32.0",
+    "lightningcss-linux-x64-musl": "^1.32.0"
   }
 }
